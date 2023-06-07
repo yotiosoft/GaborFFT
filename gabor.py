@@ -1,6 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.io.wavfile as wio
+from concurrent.futures import ThreadPoolExecutor
+from concurrent import futures
+
+import time
+
+THREADS = 4
 
 T = 100
 a = 10000
@@ -18,29 +24,57 @@ def DGT(x, w, a, b, m, n):
 def hammig_w(t):
     return 0.54 - 0.46 * np.cos((2 * np.pi * t) / T)
 
+def calc_X(m0, m1, n0, n1, x, w):
+    temp_X = np.zeros((m1-m0, n1-n0), dtype=complex)
+    for m in range(m0, m1):
+        for n in range(n0, n1):
+            temp_X[m-m0, n-n1] = DGT(x, w, a, b, m, n)
+            #print("m:" + str(m) + ", n:" + str(n) + " : " + str(temp_X[m-m0, n-n0]))
+    return (temp_X, m0, m1, n0, n1)
+
 w = np.zeros(T)
 for t in range(T):
     w[t] = hammig_w(t)
 
 # sample: sin
-#x = np.zeros(L)
-#for l in range(L):
-#    x[l] = np.sin(np.pi * l)
+x = np.zeros(L)
+for l in range(L):
+    x[l] = np.sin(np.pi * l)
 
+'''
 # sample: wav
 fs, x = wio.read("BabyElephantWalk60.wav")
 x = x[:L]
 L = len(x)
 N = int(L / a)
 M = int(L / b)
+'''
 #pxx, freq, bins, t = plt.specgram(x,Fs = fs)
 #plt.show()
 
 X = np.zeros((M, N), dtype=complex)
-for m in range(M):
-    for n in range(N):
-        X[m, n] = DGT(x, w, a, b, m, n)
-        print("m:" + str(m) + ", n:" + str(n) + " : " + str(X[m, n]))
+future_list = []
+start = time.time()
+with ThreadPoolExecutor(max_workers=4) as e:
+    for i in range(THREADS):
+        m0 = (int)(i * (M / THREADS))
+        if i == THREADS - 1:
+            m1 = M
+        else:
+            m1 = (int)((i + 1) * (M / THREADS))
+        n0 = 0
+        n1 = N
+        print("m0:" + str(m0) + ", m1:" + str(m1) + ", n0:" + str(n0) + ", n1:" + str(n1))
+        future = e.submit(calc_X, m0, m1, n0, n1, x, w)
+        future_list.append(future)
+
+    i = 0
+    for future in futures.as_completed(fs=future_list):
+        temp_X, m0, m1, n0, n1 = future.result()
+        X[m0:m1, n0:n1] = temp_X
+        i += 1
+
+print ("time: " + str(time.time()-start))
 
 # time domain
 # plt.plot(np.abs(X[:, T - 1]))
