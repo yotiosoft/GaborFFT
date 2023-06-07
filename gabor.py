@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 import scipy.io.wavfile as wio
 
 T = 100
-a = 100
-b = 100
-L = 10000
+a = 10000
+b = 10000
+L = 100000
 N = int(L / a)
 M = int(L / b)
 
@@ -23,15 +23,16 @@ for t in range(T):
     w[t] = hammig_w(t)
 
 # sample: sin
-x = np.zeros(L)
-for l in range(L):
-    x[l] = np.sin(np.pi * l)
+#x = np.zeros(L)
+#for l in range(L):
+#    x[l] = np.sin(np.pi * l)
 
 # sample: wav
-#fs, x = wio.read("BabyElephantWalk60.wav")
-#L = len(x)
-#N = int(L / a)
-#M = int(L / b)
+fs, x = wio.read("BabyElephantWalk60.wav")
+x = x[:L]
+L = len(x)
+N = int(L / a)
+M = int(L / b)
 #pxx, freq, bins, t = plt.specgram(x,Fs = fs)
 #plt.show()
 
@@ -47,6 +48,7 @@ for m in range(M):
 
 # spectrogram
 fig, ax = plt.subplots()
+ax.set_yscale('log')
 
 c = ax.contourf(np.abs(X), 20, cmap="jet")
 fig.colorbar(c)
