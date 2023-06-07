@@ -38,11 +38,7 @@ for m in range(M):
 # spectrogram
 fig, ax = plt.subplots()
 
-graph_x = np.linspace(0, M, 100)
-graph_y = np.linspace(0, N, 100)
-GRAPH_X, GRAPH_Y = np.meshgrid(graph_x, graph_y)
-
-c = ax.contourf(GRAPH_Y, GRAPH_X, np.abs(X), 20, cmap="jet")
+c = ax.contourf(np.abs(X), 20, cmap="jet")
 fig.colorbar(c)
 
 plt.show()
