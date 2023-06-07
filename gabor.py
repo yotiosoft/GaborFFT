@@ -2,9 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 T = 100
-a = 10
-b = 10
-L = 1000
+a = 100
+b = 100
+L = 10000
 N = int(L / a)
 M = int(L / b)
 
