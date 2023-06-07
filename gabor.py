@@ -2,9 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 T = 100
-a = 100
-b = 100
-L = 10000
+a = 10
+b = 10
+L = 1000
 N = int(L / a)
 M = int(L / b)
 
@@ -31,5 +31,18 @@ for m in range(M):
         X[m, n] = DGT(x, w, a, b, m, n)
         print("m:" + str(m) + ", n:" + str(n) + " : " + str(X[m, n]))
 
-plt.plot(np.abs(X[:, T - 1]))
+# time domain
+# plt.plot(np.abs(X[:, T - 1]))
+# plt.show()
+
+# spectrogram
+fig, ax = plt.subplots()
+
+graph_x = np.linspace(0, M, 100)
+graph_y = np.linspace(0, N, 100)
+GRAPH_X, GRAPH_Y = np.meshgrid(graph_x, graph_y)
+
+c = ax.contourf(GRAPH_Y, GRAPH_X, np.abs(X), 20, cmap="jet")
+fig.colorbar(c)
+
 plt.show()
