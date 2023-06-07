@@ -1,10 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-T = 100
+T = 10
 a = 1
 b = 1
-L = 1000
+L = 100
 N = int(L / a)
 M = int(L / b)
 
@@ -31,4 +31,5 @@ for m in range(M):
         X[m, n] = DGT(x, w, a, b, m, n)
         print("m:" + str(m) + ", n:" + str(n) + " : " + str(X[m, n]))
 
-plt.plot(1,1,marker='.')
+plt.plot(np.abs(X[:, 10]))
+plt.show()
