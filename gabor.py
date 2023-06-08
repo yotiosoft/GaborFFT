@@ -6,7 +6,7 @@ from concurrent import futures
 
 import time
 
-THREADS = 4
+THREADS = 16
 
 T = 100
 a = 10000
@@ -29,35 +29,38 @@ def calc_X(m0, m1, n0, n1, x, w):
     for m in range(m0, m1):
         for n in range(n0, n1):
             temp_X[m-m0, n-n1] = DGT(x, w, a, b, m, n)
-            #print("m:" + str(m) + ", n:" + str(n) + " : " + str(temp_X[m-m0, n-n0]))
+            print("m:" + str(m) + ", n:" + str(n) + " : " + str(temp_X[m-m0, n-n0]))
     return (temp_X, m0, m1, n0, n1)
 
 w = np.zeros(T)
 for t in range(T):
     w[t] = hammig_w(t)
 
+'''
 # sample: sin
 x = np.zeros(L)
 for l in range(L):
     x[l] = np.sin(np.pi * l)
-
 '''
+#'''
 # sample: wav
-fs, x = wio.read("BabyElephantWalk60.wav")
-x = x[:L]
+fs, x = wio.read("0332.WAV")
 L = len(x)
 N = int(L / a)
 M = int(L / b)
-'''
+#'''
 #pxx, freq, bins, t = plt.specgram(x,Fs = fs)
 #plt.show()
 
 X = np.zeros((M, N), dtype=complex)
 future_list = []
 start = time.time()
-with ThreadPoolExecutor(max_workers=4) as e:
+with ThreadPoolExecutor(max_workers=8) as e:
     for i in range(THREADS):
-        m0 = (int)(i * (M / THREADS))
+        if i == 0:
+            m0 = 0
+        else:
+            m0 = (int)(i * (M / THREADS)) + 1
         if i == THREADS - 1:
             m1 = M
         else:
@@ -71,6 +74,7 @@ with ThreadPoolExecutor(max_workers=4) as e:
     i = 0
     for future in futures.as_completed(fs=future_list):
         temp_X, m0, m1, n0, n1 = future.result()
+        print("complete: " + str(m0) + ":" + str(m1) + ", " + str(n0) + ":" + str(n1))
         X[m0:m1, n0:n1] = temp_X
         i += 1
 
