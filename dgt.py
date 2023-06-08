@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import ticker, cm, colors
 import scipy.io.wavfile as wio
 from concurrent.futures import ThreadPoolExecutor
 from concurrent import futures
@@ -85,11 +86,12 @@ print ("time: " + str(time.time()-start))
 
 # spectrogram
 fig, ax = plt.subplots()
-ax.set_yscale('log')
 
-print(np.logspace(0, np.max(np.abs(X)), M, base=pow(10, 7)))
+print(np.logspace(0, L, M))
 print(np.max(np.abs(X)))
-c = ax.contourf(np.linspace(0, L, N), np.logspace(0, np.max(np.abs(X)), M, base=pow(10, 7)), np.abs(X), 20, cmap='jet')
+# c = ax.contourf(np.linspace(0, L, N), np.logspace(0, 3, M), np.abs(X), 20, cmap='jet')
+#c = ax.contourf(np.linspace(0, L, N), np.linspace(0, L, M), np.abs(X), 20, locator=ticker.LogLocator(), cmap='jet')
+c = ax.pcolor(np.linspace(0, L, N), np.linspace(0, L, M), np.abs(X), norm=colors.LogNorm(), cmap='jet')
 fig.colorbar(c)
 
 plt.show()
