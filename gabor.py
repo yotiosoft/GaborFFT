@@ -6,7 +6,7 @@ from concurrent import futures
 
 import time
 
-THREADS = 16
+THREADS = 8
 
 T = 100
 a = 10000
@@ -36,35 +36,34 @@ w = np.zeros(T)
 for t in range(T):
     w[t] = hammig_w(t)
 
-'''
+#'''
 # sample: sin
 x = np.zeros(L)
 for l in range(L):
     x[l] = np.sin(np.pi * l)
-'''
 #'''
+'''
 # sample: wav
 fs, x = wio.read("0332.WAV")
 L = len(x)
 N = int(L / a)
 M = int(L / b)
-#'''
+'''
 #pxx, freq, bins, t = plt.specgram(x,Fs = fs)
 #plt.show()
 
 X = np.zeros((M, N), dtype=complex)
 future_list = []
 start = time.time()
+prev_m1 = 0
 with ThreadPoolExecutor(max_workers=8) as e:
     for i in range(THREADS):
-        if i == 0:
-            m0 = 0
-        else:
-            m0 = (int)(i * (M / THREADS)) + 1
+        m0 = (int)(i * (M / THREADS))
         if i == THREADS - 1:
             m1 = M
         else:
-            m1 = (int)((i + 1) * (M / THREADS))
+            m1 = max(prev_m1 + 1, (int)((i + 1) * (M / THREADS)))
+        prev_m1 = m1
         n0 = 0
         n1 = N
         print("m0:" + str(m0) + ", m1:" + str(m1) + ", n0:" + str(n0) + ", n1:" + str(n1))
