@@ -87,7 +87,7 @@ print ("time: " + str(time.time()-start))
 fig, ax = plt.subplots()
 ax.set_yscale('log')
 
-c = ax.contourf(np.abs(X), 20, cmap="jet")
+c = ax.contourf(np.linspace(0, L, N), np.logspace(0, np.max(np.abs(X)), M), np.abs(X), 20, cmap='jet')
 fig.colorbar(c)
 
 plt.show()
