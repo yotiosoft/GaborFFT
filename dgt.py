@@ -9,11 +9,11 @@ import time
 THREADS = 8
 
 T = 100
-a = 10000
-b = 10000
-L = 100000
-N = int(L / a)  # y
-M = int(L / b)  # x
+b = 500
+a = 500
+L = 10000
+M = int(L / b)  # y
+N = int(L / a)  # x
 
 def DGT(x, w, a, b, m, n):
     dgt_X = 0
@@ -28,7 +28,7 @@ def calc_X(m0, m1, n0, n1, x, w):
     temp_X = np.zeros((m1-m0, n1-n0), dtype=complex)
     for m in range(m0, m1):
         for n in range(n0, n1):
-            temp_X[m-m0, n-n1] = DGT(x, w, a, b, m, n)
+            temp_X[m-m0, n-n1] = DGT(x, w, b, a, m, n)
             print("m:" + str(m) + ", n:" + str(n) + " : " + str(temp_X[m-m0, n-n0]))
     return (temp_X, m0, m1, n0, n1)
 
@@ -45,21 +45,23 @@ for l in range(L):
     #w0 = 2*np.pi/5
     #x[l] = np.sin(w0*l)+10*np.sin(2*w0*l)
 '''
-t = np.linspace(0, L, L)
-print(t)
+RT = 10000
+t = np.linspace(0, RT, RT+1)
 x = np.sin(2*np.pi*10*t) + np.sin(2*np.pi*20*t)
-print(len(x))
+# xの残りの部分を0埋め
+x = np.append(x, np.zeros(L - RT))
+print(x)
 '''
 # sample: wav
 fs, x = wio.read("0332.WAV")
 L = len(x)
-N = int(L / a)
-M = int(L / b)
+M = int(L / a)
+N = int(L / b)
 '''
 #pxx, freq, bins, t = plt.specgram(x,Fs = fs)
 #plt.show()
 
-X = np.zeros((M, N), dtype=complex)
+X = np.zeros((N, M), dtype=complex)
 future_list = []
 start = time.time()
 prev_m1 = 0
@@ -94,14 +96,14 @@ print ("time: " + str(time.time()-start))
 fig, ax = plt.subplots()
 
 x_max = L
-y_max = 2*b
+y_max = b*2
 X = X[0:(int)(y_max/b), 0:(int)(x_max/a)]
 print(len(X))
-print(np.linspace(0, y_max, M))
+print(np.linspace(0, y_max, N))
 c = ax.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, y_max, (int)(y_max/b)), np.abs(X), 20, cmap='jet')
 #c = ax.contourf(np.abs(X), 20, cmap='jet')
-#c = ax.contourf(np.linspace(0, L, N), np.linspace(0, L, M), np.abs(X), 20, locator=ticker.LogLocator(), cmap='jet')
-#c = ax.pcolor(np.linspace(0, L, N), np.linspace(0, L, M), np.abs(X), norm=colors.LogNorm(), cmap='jet')
+#c = ax.contourf(np.linspace(0, L, M), np.linspace(0, L, N), np.abs(X), 20, locator=ticker.LogLocator(), cmap='jet')
+#c = ax.pcolor(np.linspace(0, L, M), np.linspace(0, L, N), np.abs(X), norm=colors.LogMorm(), cmap='jet')
 fig.colorbar(c)
 
 plt.show()
