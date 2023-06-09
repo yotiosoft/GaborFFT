@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import ticker, cm, colors
 import scipy.io.wavfile as wio
 from concurrent.futures import ThreadPoolExecutor
 from concurrent import futures
@@ -46,7 +45,8 @@ for l in range(L):
     #w0 = 2*np.pi/5
     #x[l] = np.sin(w0*l)+10*np.sin(2*w0*l)
 '''
-t = np.linspace(0, 1, L)
+t = np.linspace(0, L, L)
+print(t)
 x = np.sin(2*np.pi*10*t) + np.sin(2*np.pi*20*t)
 print(len(x))
 '''
@@ -94,11 +94,12 @@ print ("time: " + str(time.time()-start))
 fig, ax = plt.subplots()
 
 x_max = L
-y_max = 100
-X = X[0:y_max, 0:x_max]
+y_max = 2*b
+X = X[0:(int)(y_max/b), 0:(int)(x_max/a)]
 print(len(X))
 print(np.linspace(0, y_max, M))
-c = ax.contourf(np.linspace(0, x_max, N), np.linspace(0, y_max, M), np.abs(X), 20, cmap='jet')
+c = ax.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, y_max, (int)(y_max/b)), np.abs(X), 20, cmap='jet')
+#c = ax.contourf(np.abs(X), 20, cmap='jet')
 #c = ax.contourf(np.linspace(0, L, N), np.linspace(0, L, M), np.abs(X), 20, locator=ticker.LogLocator(), cmap='jet')
 #c = ax.pcolor(np.linspace(0, L, N), np.linspace(0, L, M), np.abs(X), norm=colors.LogNorm(), cmap='jet')
 fig.colorbar(c)
