@@ -13,8 +13,8 @@ T = 100
 a = 10000
 b = 10000
 L = 100000
-N = int(L / a)
-M = int(L / b)
+N = int(L / a)  # y
+M = int(L / b)  # x
 
 def DGT(x, w, a, b, m, n):
     dgt_X = 0
@@ -37,12 +37,18 @@ w = np.zeros(T)
 for t in range(T):
     w[t] = hammig_w(t)
 
-#'''
+'''
 # sample: sin
 x = np.zeros(L)
 for l in range(L):
-    x[l] = np.sin(np.pi * l)
-#'''
+    x[l] = np.sin(np.pi * l / 100)
+    
+    #w0 = 2*np.pi/5
+    #x[l] = np.sin(w0*l)+10*np.sin(2*w0*l)
+'''
+t = np.linspace(0, 1, L)
+x = np.sin(2*np.pi*10*t) + np.sin(2*np.pi*20*t)
+print(len(x))
 '''
 # sample: wav
 fs, x = wio.read("0332.WAV")
@@ -87,11 +93,14 @@ print ("time: " + str(time.time()-start))
 # spectrogram
 fig, ax = plt.subplots()
 
-print(np.logspace(0, L, M))
-print(np.max(np.abs(X)))
-# c = ax.contourf(np.linspace(0, L, N), np.logspace(0, 3, M), np.abs(X), 20, cmap='jet')
+x_max = L
+y_max = 100
+X = X[0:y_max, 0:x_max]
+print(len(X))
+print(np.linspace(0, y_max, M))
+c = ax.contourf(np.linspace(0, x_max, N), np.linspace(0, y_max, M), np.abs(X), 20, cmap='jet')
 #c = ax.contourf(np.linspace(0, L, N), np.linspace(0, L, M), np.abs(X), 20, locator=ticker.LogLocator(), cmap='jet')
-c = ax.pcolor(np.linspace(0, L, N), np.linspace(0, L, M), np.abs(X), norm=colors.LogNorm(), cmap='jet')
+#c = ax.pcolor(np.linspace(0, L, N), np.linspace(0, L, M), np.abs(X), norm=colors.LogNorm(), cmap='jet')
 fig.colorbar(c)
 
 plt.show()
