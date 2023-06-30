@@ -46,8 +46,10 @@ for l in range(L):
     #x[l] = np.sin(w0*l)+10*np.sin(2*w0*l)
 '''
 RT = 10000
-t = np.linspace(0, RT, RT+1)
-x = np.sin(2*np.pi*10*t) + np.sin(2*np.pi*20*t)
+t = np.linspace(0, RT, RT)
+print(t)
+x = np.sin(2*np.pi*5*t)
+#x = np.sin(2*np.pi*10*t) + np.sin(2*np.pi*20*t)
 # xの残りの部分を0埋め
 x = np.append(x, np.zeros(L - RT))
 print(x)
@@ -93,17 +95,29 @@ print ("time: " + str(time.time()-start))
 # plt.show()
 
 # spectrogram
-fig, ax = plt.subplots()
+fig1, ax1 = plt.subplots()
+fig2, ax2 = plt.subplots()
+fig3, ax3 = plt.subplots()
 
+# プロット用パラメータ
 x_max = L
 y_max = b*2
 X = X[0:(int)(y_max/b), 0:(int)(x_max/a)]
 print(len(X))
 print(np.linspace(0, y_max, N))
-c = ax.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, y_max, (int)(y_max/b)), np.abs(X), 20, cmap='jet')
+
+# 波形
+ax1.plot(t, x)
+
+# 1秒分の波形
+ax2.stem(t, x, '*')
+ax2.set_xlim(0, 1)
+
+# 解析結果
+c = ax3.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, y_max, (int)(y_max/b)), np.abs(X), 20, cmap='jet')
 #c = ax.contourf(np.abs(X), 20, cmap='jet')
 #c = ax.contourf(np.linspace(0, L, M), np.linspace(0, L, N), np.abs(X), 20, locator=ticker.LogLocator(), cmap='jet')
 #c = ax.pcolor(np.linspace(0, L, M), np.linspace(0, L, N), np.abs(X), norm=colors.LogMorm(), cmap='jet')
-fig.colorbar(c)
+fig3.colorbar(c)
 
 plt.show()
