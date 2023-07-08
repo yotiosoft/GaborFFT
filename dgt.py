@@ -8,17 +8,20 @@ import time
 
 THREADS = 8
 
-T = 1
-b = 2
-a = 2
-L = 100
+T = 100
+b = 100
+a = 100
+L = 10000
 M = int(L / b)  # y
 N = int(L / a)  # x
 
 def DGT(x, w, a, b, m, n):
     dgt_X = 0
     for l in range(L):
-        dgt_X += x[l] * w[(l - a * n) % T] * np.exp((-2 * np.pi * 1j * b * m * l) / L)
+        wl = 0
+        if l - a * n >= 0 and l - a * n < T:
+            wl = w[l - a * n]
+        dgt_X += x[l] * wl * np.exp((-2 * np.pi * 1j * b * m * l) / L)
     return dgt_X
 
 def hammig_w(t):
@@ -45,8 +48,8 @@ for l in range(L):
     #w0 = 2*np.pi/5
     #x[l] = np.sin(w0*l)+10*np.sin(2*w0*l)
 '''
-RT = 100
-t = np.linspace(0, RT, RT)
+RT = 10000
+t = np.linspace(0, L, L)
 x = np.sin(100*np.pi*5*t)
 #x = np.sin(2*np.pi*10*t) + np.sin(2*np.pi*20*t)
 # xの残りの部分を0埋め
@@ -109,7 +112,7 @@ ax1.plot(t, x)
 
 # 1秒分の波形
 ax2.stem(t, x, '*')
-ax2.set_xlim(0, 1)
+ax2.set_xlim(0, 100)
 
 # 解析結果
 c = ax3.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, y_max, (int)(y_max/b)), np.abs(X), 20, cmap='jet')
