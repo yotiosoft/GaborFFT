@@ -3,35 +3,39 @@ import matplotlib.pyplot as plt
 import scipy.io.wavfile as wio
 from concurrent.futures import ThreadPoolExecutor
 from concurrent import futures
+import matplotlib.ticker as ticker
 
 import time
 
-THREADS = 8
+THREADS = 1
 
 T = 100
 b = 10
 a = 100
-L = 50000
+L = 10000
 M = int(L / b)  # y
 N = int(L / a)  # x
 
-def DGT(x, w, a, b, m, n):
+dgtp = np.zeros(M, dtype=complex)
+
+def DGT(m, n):
     dgt_X = 0
     for l in range(a * n, a * n + T):
         if l >= L:
             break
-        dgt_X += x[l] * w[l - a * n] * np.exp((-2 * np.pi * 1j * b * m * l) / L)
+        dgt_X += x[l] * w[l - a * n] * np.exp((-2 * np.pi * 1j * m * l) / M)
+        dgtp[m] += np.exp((-2 * np.pi * 1j * m * l) / complex(M))
     return dgt_X
 
 def hammig_w(t):
     return 0.54 - 0.46 * np.cos((2 * np.pi * t) / T)
 
 def calc_X(m0, m1, n0, n1, x, w):
-    temp_X = np.zeros((m1-m0, n1-n0), dtype=complex)
+    temp_X = np.zeros((M, N), dtype=complex)
     for m in range(m0, m1):
         for n in range(n0, n1):
-            temp_X[m-m0, n-n1] = DGT(x, w, b, a, m, n)
-            # print("m:" + str(m) + ", n:" + str(n) + " : " + str(temp_X[m-m0, n-n0]))
+            temp_X[m, n] = DGT(m, n)
+            # print("m:" + str(m) + ", n:" + str(n) + " : " + str(temp_X[m, n]))
     return (temp_X, m0, m1, n0, n1)
 
 w = np.zeros(T)
@@ -55,6 +59,9 @@ t = np.linspace(0, L, L)
 
 # sample: wav
 fs, x = wio.read("0332.WAV")
+#fs, x = wio.read("shining.wav")
+#x = x[:, 0]
+print(x)
 x = x[0:L]
 
 #pxx, freq, bins, t = plt.specgram(x,Fs = fs)
@@ -82,7 +89,7 @@ with ThreadPoolExecutor(max_workers=8) as e:
     for future in futures.as_completed(fs=future_list):
         temp_X, m0, m1, n0, n1 = future.result()
         print("complete: " + str(m0) + ":" + str(m1) + ", " + str(n0) + ":" + str(n1))
-        X[m0:m1, n0:n1] = temp_X
+        X[m0:m1, n0:n1] = temp_X[m0:m1, n0:n1]
         i += 1
 
 print ("time: " + str(time.time()-start))
@@ -96,6 +103,10 @@ fig1, ax1 = plt.subplots()
 fig2, ax2 = plt.subplots()
 fig3, ax3 = plt.subplots()
 fig4, ax4 = plt.subplots()
+
+fig5, ax5 = plt.subplots()
+
+ax5.plot(np.abs(dgtp))
 
 # プロット用パラメータ
 x_max = L
@@ -115,9 +126,9 @@ ax2.set_xlim(0, 100)
 ax3.plot(w)
 
 # 解析結果
-c = ax4.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, y_max, (int)(y_max/b)), np.abs(X), 20, cmap='jet')
+#c = ax4.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, y_max, (int)(y_max/b)), np.abs(X), 20, cmap='jet')
 #c = ax.contourf(np.abs(X), 20, cmap='jet')
-#c = ax.contourf(np.linspace(0, L, M), np.linspace(0, L, N), np.abs(X), 20, locator=ticker.LogLocator(), cmap='jet')
+c = ax4.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, y_max, (int)(y_max/b)), np.abs(X), 20, locator=ticker.LogLocator(), cmap='jet')
 #c = ax.pcolor(np.linspace(0, L, M), np.linspace(0, L, N), np.abs(X), norm=colors.LogMorm(), cmap='jet')
 fig4.colorbar(c)
 
