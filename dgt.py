@@ -11,7 +11,7 @@ THREADS = 8
 T = 100
 b = 10
 a = 100
-L = 10000
+L = 50000
 M = int(L / b)  # y
 N = int(L / a)  # x
 
@@ -49,17 +49,14 @@ for l in range(L):
 '''
 RT = L
 t = np.linspace(0, L, L)
-x = np.sin(100*np.pi*5*t)
-#x = np.sin(2*np.pi*10*t) + np.sin(2*np.pi*20*t)
+#x = np.sin(100*np.pi*5*t)
 # xの残りの部分を0埋め
-x = np.append(x, np.zeros(L - RT))
-'''
+#x = np.append(x, np.zeros(L - RT))
+
 # sample: wav
 fs, x = wio.read("0332.WAV")
-L = len(x)
-M = int(L / a)
-N = int(L / b)
-'''
+x = x[0:L]
+
 #pxx, freq, bins, t = plt.specgram(x,Fs = fs)
 #plt.show()
 
