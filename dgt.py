@@ -9,7 +9,7 @@ import time
 THREADS = 8
 
 T = 100
-b = 100
+b = 10
 a = 100
 L = 10000
 M = int(L / b)  # y
@@ -47,7 +47,7 @@ for l in range(L):
     #w0 = 2*np.pi/5
     #x[l] = np.sin(w0*l)+10*np.sin(2*w0*l)
 '''
-RT = 10000
+RT = L
 t = np.linspace(0, L, L)
 x = np.sin(100*np.pi*5*t)
 #x = np.sin(2*np.pi*10*t) + np.sin(2*np.pi*20*t)
@@ -63,7 +63,7 @@ N = int(L / b)
 #pxx, freq, bins, t = plt.specgram(x,Fs = fs)
 #plt.show()
 
-X = np.zeros((N, M), dtype=complex)
+X = np.zeros((M, N), dtype=complex)
 future_list = []
 start = time.time()
 prev_m1 = 0
@@ -102,7 +102,7 @@ fig4, ax4 = plt.subplots()
 
 # プロット用パラメータ
 x_max = L
-y_max = b*2
+y_max = L
 X = X[0:(int)(y_max/b), 0:(int)(x_max/a)]
 print(len(X))
 print(np.linspace(0, y_max, N))
