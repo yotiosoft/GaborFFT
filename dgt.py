@@ -17,9 +17,9 @@ N = int(L / a)  # x
 
 def DGT(x, w, a, b, m, n):
     dgt_X = 0
-    for l in range(L):
-        if l - a * n < 0 or l - a * n >= T:
-            continue
+    for l in range(a * n, a * n + T):
+        if l >= L:
+            break
         dgt_X += x[l] * w[l - a * n] * np.exp((-2 * np.pi * 1j * b * m * l) / L)
     return dgt_X
 
