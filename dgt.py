@@ -7,7 +7,7 @@ import matplotlib.ticker as ticker
 
 import time
 
-THREADS = 1
+THREADS = 8
 
 T = 100
 b = 10
@@ -20,10 +20,14 @@ dgtp = np.zeros(M, dtype=complex)
 
 def DGT(m, n):
     dgt_X = 0
-    for l in range(a * n, a * n + T):
+    #for l in range(a * n, a * n + T):
+    for l in range(L):
         if l >= L:
             break
-        dgt_X += x[l] * w[l - a * n] * np.exp((-2 * np.pi * 1j * m * l) / M)
+        wl = 0
+        if l - a * n >= 0 and l - a * n < T:
+            wl = w[l - a * n]
+        dgt_X += x[l] * wl * np.exp((-2 * np.pi * 1j * m * l) / complex(M))
         dgtp[m] += np.exp((-2 * np.pi * 1j * m * l) / complex(M))
     return dgt_X
 
