@@ -18,10 +18,9 @@ N = int(L / a)  # x
 def DGT(x, w, a, b, m, n):
     dgt_X = 0
     for l in range(L):
-        wl = 0
-        if l - a * n >= 0 and l - a * n < T:
-            wl = w[l - a * n]
-        dgt_X += x[l] * wl * np.exp((-2 * np.pi * 1j * b * m * l) / L)
+        if l - a * n < 0 or l - a * n >= T:
+            continue
+        dgt_X += x[l] * w[l - a * n] * np.exp((-2 * np.pi * 1j * b * m * l) / L)
     return dgt_X
 
 def hammig_w(t):
@@ -32,7 +31,7 @@ def calc_X(m0, m1, n0, n1, x, w):
     for m in range(m0, m1):
         for n in range(n0, n1):
             temp_X[m-m0, n-n1] = DGT(x, w, b, a, m, n)
-            print("m:" + str(m) + ", n:" + str(n) + " : " + str(temp_X[m-m0, n-n0]))
+            # print("m:" + str(m) + ", n:" + str(n) + " : " + str(temp_X[m-m0, n-n0]))
     return (temp_X, m0, m1, n0, n1)
 
 w = np.zeros(T)
@@ -99,6 +98,7 @@ print ("time: " + str(time.time()-start))
 fig1, ax1 = plt.subplots()
 fig2, ax2 = plt.subplots()
 fig3, ax3 = plt.subplots()
+fig4, ax4 = plt.subplots()
 
 # プロット用パラメータ
 x_max = L
@@ -114,11 +114,14 @@ ax1.plot(t, x)
 ax2.stem(t, x, '*')
 ax2.set_xlim(0, 100)
 
+# 窓
+ax3.plot(w)
+
 # 解析結果
-c = ax3.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, y_max, (int)(y_max/b)), np.abs(X), 20, cmap='jet')
+c = ax4.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, y_max, (int)(y_max/b)), np.abs(X), 20, cmap='jet')
 #c = ax.contourf(np.abs(X), 20, cmap='jet')
 #c = ax.contourf(np.linspace(0, L, M), np.linspace(0, L, N), np.abs(X), 20, locator=ticker.LogLocator(), cmap='jet')
 #c = ax.pcolor(np.linspace(0, L, M), np.linspace(0, L, N), np.abs(X), norm=colors.LogMorm(), cmap='jet')
-fig3.colorbar(c)
+fig4.colorbar(c)
 
 plt.show()
