@@ -12,22 +12,20 @@ THREADS = 8
 T = 100
 b = 10
 a = 100
-L = 10000
-M = int(L / b)  # y
-N = int(L / a)  # x
+L = 30000
+PLOT_X = L
+PLOT_Y = L / 10
+M = int(PLOT_Y / b)  # y
+N = int(PLOT_X / a)  # x
 
 dgtp = np.zeros(M, dtype=complex)
 
 def DGT(m, n):
     dgt_X = 0
-    #for l in range(a * n, a * n + T):
-    for l in range(L):
-        if l >= L:
+    for l in range(a * n, a * n + T):
+        if l >= PLOT_X:
             break
-        wl = 0
-        if l - a * n >= 0 and l - a * n < T:
-            wl = w[l - a * n]
-        dgt_X += x[l] * wl * np.exp((-2 * np.pi * 1j * m * l) / complex(M))
+        dgt_X += x[l] * w[l - a * n] * np.exp((-2 * np.pi * 1j * m * l) / complex(M))
         dgtp[m] += np.exp((-2 * np.pi * 1j * m * l) / complex(M))
     return dgt_X
 
@@ -62,11 +60,15 @@ t = np.linspace(0, L, L)
 #x = np.append(x, np.zeros(L - RT))
 
 # sample: wav
-fs, x = wio.read("0332.WAV")
+fs, x = wio.read("MSK.20100405.M.CS05.wav")
 #fs, x = wio.read("shining.wav")
 #x = x[:, 0]
 print(x)
-x = x[0:L]
+print("Length: " + str(len(x)))
+if len(x) > L:
+    x = x[0:L]
+elif len(x) < L:
+    x = np.append(x, np.zeros(L - len(x)))
 
 #pxx, freq, bins, t = plt.specgram(x,Fs = fs)
 #plt.show()
@@ -108,13 +110,12 @@ fig2, ax2 = plt.subplots()
 fig3, ax3 = plt.subplots()
 fig4, ax4 = plt.subplots()
 
-fig5, ax5 = plt.subplots()
-
-ax5.plot(np.abs(dgtp))
+#fig5, ax5 = plt.subplots()
+#ax5.plot(np.abs(dgtp))
 
 # プロット用パラメータ
-x_max = L
-y_max = L
+x_max = PLOT_X
+y_max = PLOT_Y
 X = X[0:(int)(y_max/b), 0:(int)(x_max/a)]
 print(len(X))
 print(np.linspace(0, y_max, N))
@@ -131,9 +132,7 @@ ax3.plot(w)
 
 # 解析結果
 #c = ax4.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, y_max, (int)(y_max/b)), np.abs(X), 20, cmap='jet')
-#c = ax.contourf(np.abs(X), 20, cmap='jet')
 c = ax4.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, y_max, (int)(y_max/b)), np.abs(X), 20, locator=ticker.LogLocator(), cmap='jet')
-#c = ax.pcolor(np.linspace(0, L, M), np.linspace(0, L, N), np.abs(X), norm=colors.LogMorm(), cmap='jet')
 fig4.colorbar(c)
 
 plt.show()
