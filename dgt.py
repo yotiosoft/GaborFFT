@@ -12,18 +12,16 @@ THREADS = 8
 T = 100
 b = 10
 a = 100
-L = 30000
-PLOT_X = L
-PLOT_Y = L / 10
-M = int(PLOT_Y / b)  # y
-N = int(PLOT_X / a)  # x
+L = 15000
+M = int(L / b)  # y
+N = int(L / a)  # x
 
 dgtp = np.zeros(M, dtype=complex)
 
 def DGT(m, n):
     dgt_X = 0
     for l in range(a * n, a * n + T):
-        if l >= PLOT_X:
+        if l >= L:
             break
         dgt_X += x[l] * w[l - a * n] * np.exp((-2 * np.pi * 1j * m * l) / complex(M))
         dgtp[m] += np.exp((-2 * np.pi * 1j * m * l) / complex(M))
@@ -60,9 +58,10 @@ t = np.linspace(0, L, L)
 #x = np.append(x, np.zeros(L - RT))
 
 # sample: wav
-fs, x = wio.read("MSK.20100405.M.CS05.wav")
 #fs, x = wio.read("shining.wav")
 #x = x[:, 0]
+fs, x = wio.read("MSK.20100405.M.CS05.wav")
+x = x[5000:20000]
 print(x)
 print("Length: " + str(len(x)))
 if len(x) > L:
@@ -114,8 +113,8 @@ fig4, ax4 = plt.subplots()
 #ax5.plot(np.abs(dgtp))
 
 # プロット用パラメータ
-x_max = PLOT_X
-y_max = PLOT_Y
+x_max = L
+y_max = L / 2
 X = X[0:(int)(y_max/b), 0:(int)(x_max/a)]
 print(len(X))
 print(np.linspace(0, y_max, N))
