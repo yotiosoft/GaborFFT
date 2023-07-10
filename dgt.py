@@ -11,7 +11,7 @@ THREADS = 8
 
 T = 100
 b = 10
-a = 100
+a = 50
 L = 15000
 M = int(L / b)  # y
 N = int(L / a)  # x
