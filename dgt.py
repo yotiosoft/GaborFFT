@@ -16,8 +16,6 @@ L = 15000
 M = int(L / b)  # y
 N = int(L / a)  # x
 
-dgtp = np.zeros(M, dtype=complex)
-
 def DGT(m, n):
     dgt_X = 0
     for l in range(a * n, a * n + T):
@@ -42,15 +40,6 @@ w = np.zeros(T)
 for t in range(T):
     w[t] = hammig_w(t)
 
-'''
-# sample: sin
-x = np.zeros(L)
-for l in range(L):
-    x[l] = np.sin(np.pi * l / 100)
-    
-    #w0 = 2*np.pi/5
-    #x[l] = np.sin(w0*l)+10*np.sin(2*w0*l)
-'''
 RT = L
 t = np.linspace(0, L, L)
 #x = np.sin(100*np.pi*5*t)
@@ -99,18 +88,11 @@ with ThreadPoolExecutor(max_workers=8) as e:
 
 print ("time: " + str(time.time()-start))
 
-# time domain
-# plt.plot(np.abs(X[:, T - 1]))
-# plt.show()
-
 # spectrogram
 fig1, ax1 = plt.subplots()
 fig2, ax2 = plt.subplots()
 fig3, ax3 = plt.subplots()
 fig4, ax4 = plt.subplots()
-
-#fig5, ax5 = plt.subplots()
-#ax5.plot(np.abs(dgtp))
 
 # プロット用パラメータ
 x_max = L
