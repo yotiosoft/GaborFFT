@@ -22,7 +22,6 @@ def DGT(m, n):
         if l >= L:
             break
         dgt_X += x[l] * w[l - a * n] * np.exp((-2 * np.pi * 1j * m * l) / complex(M))
-        dgtp[m] += np.exp((-2 * np.pi * 1j * m * l) / complex(M))
     return dgt_X
 
 def hammig_w(t):
