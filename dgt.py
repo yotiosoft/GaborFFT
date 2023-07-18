@@ -17,12 +17,11 @@ M = int(L / b)  # y
 N = int(L / a)  # x
 
 def DGT(m, n):
-    dgt_X = 0
-    for l in range(a * n, a * n + T):
-        if l >= L:
-            break
-        dgt_X += x[l] * w[l - a * n] * np.exp((-2 * np.pi * 1j * m * l) / complex(M))
-    return dgt_X
+    #l = [ complex(i, 0) for i in range(a*n, min(a*n + T, L)) ]
+    l = range(a*n, min(a*n + T, L))
+    dgt_X = x[a * n:min(a * n + T, L)] * w[0:min(T, L - a * n)] * np.exp((-2 * np.pi * 1j * (m * l)) / complex(M))
+    ret = np.sum(dgt_X)
+    return ret
 
 def hammig_w(t):
     return 0.54 - 0.46 * np.cos((2 * np.pi * t) / T)
