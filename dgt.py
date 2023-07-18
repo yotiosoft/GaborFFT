@@ -27,7 +27,7 @@ def DGT(m, n):
 def hammig_w(t):
     return 0.54 - 0.46 * np.cos((2 * np.pi * t) / T)
 
-def calc_X(m0, m1, n0, n1, x, w):
+def calc_X(m0, m1, n0, n1):
     temp_X = np.zeros((M, N), dtype=complex)
     for m in range(m0, m1):
         for n in range(n0, n1):
@@ -79,7 +79,7 @@ with ThreadPoolExecutor(max_workers=8) as e:
         n0 = 0
         n1 = N
         print("m0:" + str(m0) + ", m1:" + str(m1) + ", n0:" + str(n0) + ", n1:" + str(n1))
-        future = e.submit(calc_X, m0, m1, n0, n1, x, w)
+        future = e.submit(calc_X, m0, m1, n0, n1)
         future_list.append(future)
 
     i = 0
