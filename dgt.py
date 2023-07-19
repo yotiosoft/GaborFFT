@@ -18,8 +18,19 @@ N = int(L / a)  # x
 
 def DGT(m, n):
     #l = [ complex(i, 0) for i in range(a*n, min(a*n + T, L)) ]
-    l = range(a*n, min(a*n + T, L))
-    dgt_X = x[a * n:min(a * n + T, L)] * w[0:min(T, L - a * n)] * np.exp((-2 * np.pi * 1j * (m * l)) / complex(M))
+    # l は [a*n + T, L]の対角行列に
+    min_l = a * n
+    max_l = min(a * n + T, L)
+    size = max_l - min_l
+
+    l = np.zeros((size, size))
+    for i in range(size):
+        l[i, i] = min_l + i
+
+    ml = m * l
+    print(ml)
+
+    dgt_X = x[min_l:max_l] * w[0:size] * np.exp((-2 * np.pi * 1j * ml) / M)
     ret = np.sum(dgt_X)
     return ret
 
