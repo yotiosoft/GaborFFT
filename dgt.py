@@ -69,7 +69,7 @@ X = np.zeros((M, N), dtype=complex)
 future_list = []
 start = time.time()
 prev_m1 = 0
-max_m = int(M / 2)
+max_m = int(M / 2)      # 計算するのはナイキスト周波数まで（実行時間短縮のため）
 with ThreadPoolExecutor(max_workers=8) as e:
     for i in range(THREADS):
         m0 = (int)(i * (max_m / THREADS))
