@@ -69,13 +69,14 @@ X = np.zeros((M, N), dtype=complex)
 future_list = []
 start = time.time()
 prev_m1 = 0
+max_m = int(M / 2)
 with ThreadPoolExecutor(max_workers=8) as e:
     for i in range(THREADS):
-        m0 = (int)(i * (M / THREADS))
+        m0 = (int)(i * (max_m / THREADS))
         if i == THREADS - 1:
-            m1 = M
+            m1 = max_m
         else:
-            m1 = max(prev_m1 + 1, (int)((i + 1) * (M / THREADS)))
+            m1 = max(prev_m1 + 1, (int)((i + 1) * (max_m / THREADS)))
         prev_m1 = m1
         n0 = 0
         n1 = N
