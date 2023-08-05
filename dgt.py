@@ -56,6 +56,7 @@ fs, x = wio.read("MSK.20100405.M.CS05.wav")
 x = x[5000:20000]
 print(x)
 print("Length: " + str(len(x)))
+print("fs: " + str(fs))
 if len(x) > L:
     x = x[0:L]
 elif len(x) < L:
