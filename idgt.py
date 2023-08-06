@@ -16,7 +16,7 @@ L = 15000
 M = int(L / b)  # y
 N = int(L / a)  # x
 
-def DGT(x, w, m, n):
+def DGT(m, n):
     dgt_X = 0
     for l in range(a * n, a * n + T):
         if l >= L:
@@ -24,22 +24,14 @@ def DGT(x, w, m, n):
         dgt_X += x[l] * w[l - a * n] * np.exp((-2 * np.pi * 1j * m * l) / complex(M))
     return dgt_X
 
-def IDGT(m, n):
-    idgt_x = 0
-    for n in range(a * n, a * n + T):
-        for m in range(b * m, b * m + T):
-            if n >= N or m >= M:
-                break
-            idgt_x += X[m, n] * w[n - a * n] * np.exp((2 * np.pi * 1j * m * n) / complex(M))
-
 def hammig_w(t):
     return 0.54 - 0.46 * np.cos((2 * np.pi * t) / T)
 
-def calc_X(x, w, m0, m1, n0, n1):
+def calc_X(m0, m1, n0, n1):
     temp_X = np.zeros((M, N), dtype=complex)
     for m in range(m0, m1):
         for n in range(n0, n1):
-            temp_X[m, n] = DGT(x, w, m, n)
+            temp_X[m, n] = DGT(m, n)
             # print("m:" + str(m) + ", n:" + str(n) + " : " + str(temp_X[m, n]))
     return (temp_X, m0, m1, n0, n1)
 
@@ -89,7 +81,7 @@ with ThreadPoolExecutor(max_workers=8) as e:
         n0 = 0
         n1 = N
         print("m0:" + str(m0) + ", m1:" + str(m1) + ", n0:" + str(n0) + ", n1:" + str(n1))
-        future = e.submit(calc_X, x, w, m0, m1, n0, n1)
+        future = e.submit(calc_X, m0, m1, n0, n1)
         future_list.append(future)
 
     i = 0
