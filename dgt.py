@@ -108,7 +108,7 @@ with ThreadPoolExecutor(max_workers=8) as e:
 print ("time: " + str(time.time()-start))
 
 start = time.time()
-cL = 100
+cL = L
 cx = np.zeros(cL, dtype=complex)
 future_list = []
 with ThreadPoolExecutor(max_workers=8) as e:
@@ -164,6 +164,7 @@ c = ax5.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, y_max, (i
 c = ax4.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, y_max, (int)(y_max/b)), np.abs(X), 20, locator=ticker.LogLocator(), cmap='jet')
 fig4.colorbar(c)
 
+# 逆変換結果
 ax6.plot(t[0:cL], cx)
 
 plt.show()
