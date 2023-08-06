@@ -24,13 +24,14 @@ def DGT(x, w, m, n):
         dgt_X += x[l] * w[l - a * n] * np.exp((-2 * np.pi * 1j * m * l) / complex(M))
     return dgt_X
 
-def IDGT(m, n):
+def IDGT(X, g, l):
     idgt_x = 0
-    for n in range(a * n, a * n + T):
-        for m in range(b * m, b * m + T):
-            if n >= N or m >= M:
-                break
-            idgt_x += X[m, n] * w[n - a * n] * np.exp((2 * np.pi * 1j * m * n) / complex(M))
+    for n in range(N):
+        for m in range(M):
+            if l - a * n < 0 or l - a * n >= T:
+                continue
+            idgt_x += X[m, n] * g[l - a * n] * np.exp((2 * np.pi * 1j * m * l) / complex(M))
+    return idgt_x
 
 def hammig_w(t):
     return 0.54 - 0.46 * np.cos((2 * np.pi * t) / T)
@@ -98,8 +99,13 @@ with ThreadPoolExecutor(max_workers=8) as e:
         print("complete: " + str(m0) + ":" + str(m1) + ", " + str(n0) + ":" + str(n1))
         X[m0:m1, n0:n1] = temp_X[m0:m1, n0:n1]
         i += 1
-
 print ("time: " + str(time.time()-start))
+
+cx = np.zeros(L)
+for l in range(L):
+    print("l:" + str(l) + "/" + str(L))
+    cx[l] = IDGT(X, w, l)
+print(cx)
 
 # spectrogram
 fig1, ax1 = plt.subplots()
@@ -107,6 +113,7 @@ fig2, ax2 = plt.subplots()
 fig3, ax3 = plt.subplots()
 fig4, ax4 = plt.subplots()
 fig5, ax5 = plt.subplots()
+fig6, ax6 = plt.subplots()
 
 # プロット用パラメータ
 x_max = L
@@ -132,5 +139,7 @@ X2 = db(X, 2e-5)
 c = ax5.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, y_max, (int)(y_max/b)), np.abs(X2), 50, cmap='jet')
 c = ax4.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, y_max, (int)(y_max/b)), np.abs(X), 20, locator=ticker.LogLocator(), cmap='jet')
 fig4.colorbar(c)
+
+ax6.plot(t, cx)
 
 plt.show()
