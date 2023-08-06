@@ -44,6 +44,12 @@ def calc_X(x, w, m0, m1, n0, n1):
             # print("m:" + str(m) + ", n:" + str(n) + " : " + str(temp_X[m, n]))
     return (temp_X, m0, m1, n0, n1)
 
+def calc_cx(X, w, l0, l1):
+    temp_cx = np.zeros(L, dtype=complex)
+    for l in range(l0, l1):
+        temp_cx[l] = IDGT(X, w, l)
+    return (temp_cx, l0, l1)
+
 def db(x, dBref):
     y = 20 * np.log10(x / dBref)                   # 変換式
     return y                                       # dB値を返す
@@ -101,10 +107,28 @@ with ThreadPoolExecutor(max_workers=8) as e:
         i += 1
 print ("time: " + str(time.time()-start))
 
-cx = np.zeros(L)
-for l in range(L):
-    print("l:" + str(l) + "/" + str(L))
-    cx[l] = IDGT(X, w, l)
+start = time.time()
+cL = 100
+cx = np.zeros(cL, dtype=complex)
+future_list = []
+with ThreadPoolExecutor(max_workers=8) as e:
+    for i in range(THREADS):
+        l0 = (int)(i * (cL / THREADS))
+        if i == THREADS - 1:
+            l1 = cL
+        else:
+            l1 = (int)((i + 1) * (cL / THREADS))
+        print("l0:" + str(l0) + ", l1:" + str(l1))
+        future = e.submit(calc_cx, X, w, l0, l1)
+        future_list.append(future)
+
+    i = 0
+    for future in futures.as_completed(fs=future_list):
+        temp_cx, l0, l1 = future.result()
+        print("complete: " + str(i))
+        cx[l0:l1] = temp_cx[l0:l1]
+        i += 1
+print ("time: " + str(time.time()-start))
 print(cx)
 
 # spectrogram
@@ -140,6 +164,6 @@ c = ax5.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, y_max, (i
 c = ax4.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, y_max, (int)(y_max/b)), np.abs(X), 20, locator=ticker.LogLocator(), cmap='jet')
 fig4.colorbar(c)
 
-ax6.plot(t, cx)
+ax6.plot(t[0:cL], cx)
 
 plt.show()
