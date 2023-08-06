@@ -31,7 +31,7 @@ def IDGT(X, g, l):
             continue
         for m in range(M):
             idgt_x += X[m, n] * g[l - a * n] * np.exp((2 * np.pi * 1j * m * l) / complex(M))
-    return idgt_x
+    return idgt_x / M
 
 def hammig_w(t):
     return 0.54 - 0.46 * np.cos((2 * np.pi * t) / T)
@@ -84,7 +84,7 @@ X = np.zeros((M, N), dtype=complex)
 future_list = []
 start = time.time()
 prev_m1 = 0
-max_m = int(M / 2)      # 計算するのはナイキスト周波数まで（実行時間短縮のため）
+max_m = M
 with ThreadPoolExecutor(max_workers=8) as e:
     for i in range(THREADS):
         m0 = (int)(i * (max_m / THREADS))
@@ -130,6 +130,9 @@ with ThreadPoolExecutor(max_workers=8) as e:
         i += 1
 print ("time: " + str(time.time()-start))
 print(cx)
+
+# 逆変換結果をwavファイルに出力
+wio.write("output.wav", fs, np.real(cx))
 
 # spectrogram
 fig1, ax1 = plt.subplots()
