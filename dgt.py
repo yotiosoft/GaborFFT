@@ -9,8 +9,8 @@ import time
 
 THREADS = 8
 
-T = 500
-CT = 500
+T = 100
+CT = 100
 b = 50
 a = 50
 START = 5000
@@ -34,13 +34,20 @@ def IDGT(X, g, l):
             continue
         for m in range(M):
             idgt_x += X[m, n] * g[l - a * n] * np.exp((2 * np.pi * 1j * m * l) / complex(M))
-    return idgt_x / M
+    return idgt_x
 
 def hammig_w(t):
     return 0.54 - 0.46 * np.cos((2 * np.pi * t) / T)
 
-def hammig_cw(t):
-    return 0.54 - 0.46 * np.cos((2 * np.pi * t) / CT)
+def hammig_cw(w, a):
+    cw = np.zeros((L, L))
+    for l in range(L):
+        for n in range(N):
+            if l + a * n < 0 or l + a * n >= T:
+                continue
+            cw[l][l] += np.abs(w[l + a * n]) ** 2
+        cw[l][l] *= M
+    return 1 / np.dot(cw.T, cw) * w
 
 def calc_X(x, w, m0, m1, n0, n1):
     temp_X = np.zeros((M, N), dtype=complex)
@@ -64,9 +71,7 @@ w = np.zeros(T)
 for t in range(T):
     w[t] = hammig_w(t)
 
-cw = np.zeros(CT)
-for t in range(CT):
-    cw[t] = hammig_cw(t)
+cw = hammig_cw(w, a)
 
 RT = L
 t = np.linspace(0, L, L)
