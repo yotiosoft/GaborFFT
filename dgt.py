@@ -11,7 +11,7 @@ THREADS = 8
 
 T = 500
 CT = 500
-b = 10
+b = 50
 a = 50
 L = 15000
 M = int(L / b)  # y
@@ -142,7 +142,7 @@ print ("time: " + str(time.time()-start))
 print(cx)
 
 # 逆変換結果をwavファイルに出力
-wio.write("output.wav", fs, np.real(cx))
+wio.write("output.wav", fs, np.real(cx) / L)
 
 # spectrogram
 fig1, ax1 = plt.subplots()
