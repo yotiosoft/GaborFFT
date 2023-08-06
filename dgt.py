@@ -80,6 +80,7 @@ elif len(x) < L:
 #pxx, freq, bins, t = plt.specgram(x,Fs = fs)
 #plt.show()
 
+# 解析
 X = np.zeros((M, N), dtype=complex)
 future_list = []
 start = time.time()
@@ -107,6 +108,7 @@ with ThreadPoolExecutor(max_workers=8) as e:
         i += 1
 print ("time: " + str(time.time()-start))
 
+# 逆変換
 start = time.time()
 cL = L
 cx = np.zeros(cL, dtype=complex)
@@ -149,6 +151,9 @@ X = X[0:(int)(y_max/b), 0:(int)(x_max/a)]
 print(len(X))
 print(np.linspace(0, y_max, N))
 
+# decibelize
+X2 = db(X, 2e-5)
+
 # 波形
 ax1.plot(t, x)
 
@@ -158,9 +163,6 @@ ax2.set_xlim(0, 100)
 
 # 窓
 ax3.plot(w)
-
-# decibelize
-X2 = db(X, 2e-5)
 
 # 解析結果
 c = ax5.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, y_max, (int)(y_max/b)), np.abs(X2), 50, cmap='jet')
