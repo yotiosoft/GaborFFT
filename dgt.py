@@ -13,7 +13,9 @@ T = 500
 CT = 500
 b = 50
 a = 50
-L = 15000
+START = 5000
+END = 20000
+L = END - START
 M = int(L / b)  # y
 N = int(L / a)  # x
 
@@ -76,7 +78,8 @@ t = np.linspace(0, L, L)
 #fs, x = wio.read("shining.wav")
 #x = x[:, 0]
 fs, x = wio.read("MSK.20100405.M.CS05.wav")
-x = x[5000:20000]
+#x = x[:, 0]
+x = x[START:END]
 print(x)
 print("Length: " + str(len(x)))
 print("fs: " + str(fs))
