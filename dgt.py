@@ -27,13 +27,13 @@ def DGT(x, w, m, n):
         dgt_X += x[l] * w[l - a * n] * np.exp((-2 * np.pi * 1j * m * l) / complex(M))
     return dgt_X
 
-def IDGT(X, cw, g, l):
+def IDGT(X, g, l):
     idgt_x = 0
     for n in range(N):
         if l - a * n < 0 or l - a * n >= CT:
             continue
         for m in range(M):
-            idgt_x += X[m, n] * cw[l][l] * g[l - a * n] * np.exp((2 * np.pi * 1j * m * l) / complex(M))
+            idgt_x += X[m, n] * g[l - a * n][l - a * n] * np.exp((2 * np.pi * 1j * m * l) / complex(M))
     return idgt_x
 
 def hammig_w(t):
@@ -59,10 +59,10 @@ def calc_X(x, w, m0, m1, n0, n1):
             # print("m:" + str(m) + ", n:" + str(n) + " : " + str(temp_X[m, n]))
     return (temp_X, m0, m1, n0, n1)
 
-def calc_cx(X, cw, w, l0, l1):
+def calc_cx(X, cw, l0, l1):
     temp_cx = np.zeros(L, dtype=complex)
     for l in range(l0, l1):
-        temp_cx[l] = IDGT(X, cw, w, l)
+        temp_cx[l] = IDGT(X, cw, l)
     return (temp_cx, l0, l1)
 
 def db(x, dBref):
@@ -139,7 +139,7 @@ with ThreadPoolExecutor(max_workers=8) as e:
         else:
             l1 = (int)((i + 1) * (cL / THREADS))
         print("l0:" + str(l0) + ", l1:" + str(l1))
-        future = e.submit(calc_cx, X, cw, w, l0, l1)
+        future = e.submit(calc_cx, X, cw, l0, l1)
         future_list.append(future)
 
     i = 0
