@@ -47,6 +47,8 @@ def hammig_cw(w, a):
                 continue
             cw[l][l] += np.abs(w[l + a * n]) ** 2
         cw[l][l] *= M
+    print(np.dot(cw.T, cw).shape)
+    print(np.dot(cw.T, cw))
     return 1 / np.dot(cw.T, cw) * w
 
 def calc_X(x, w, m0, m1, n0, n1):
