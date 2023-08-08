@@ -171,7 +171,6 @@ start = time.time()
 cL = L
 cx = np.zeros(cL, dtype=complex)
 future_list = []
-"""
 with ThreadPoolExecutor(max_workers=8) as e:
     for i in range(THREADS):
         l0 = (int)(i * (cL / THREADS))
@@ -189,8 +188,6 @@ with ThreadPoolExecutor(max_workers=8) as e:
         print("complete: " + str(i))
         cx[l0:l1] = temp_cx[l0:l1]
         i += 1
-"""
-calc_cx(X, cw, w, 0, cL)
 print ("time: " + str(time.time()-start))
 print(cx)
 
