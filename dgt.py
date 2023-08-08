@@ -29,16 +29,11 @@ def DGT(x, w, m, n):
 
 def IDGT(X, g, w, l):
     idgt_x = 0
-    if l == 100:
-        gw = g[l][a * 0: a * 0 + T] * w[l - a * 0: l - a * 0 + T]
-        plt.plot(gw)
-        plt.show()
     for n in range(N):
         if l - a * n < 0 or l - a * n >= CT:
             continue
-        print("l:" + str(l) + ", n:" + str(n) + " : " + str(g[l][a * n] * w[l - a * n]))
         for m in range(M):
-            idgt_x += X[m, n] * (g[l][a * n] * w[l - a * n]) * np.exp((2 * np.pi * 1j * m * l) / complex(M))
+            idgt_x += X[m, n] * (g[l][l] * w[l - a * n]) * np.exp((2 * np.pi * 1j * m * l) / complex(M))
     
     return idgt_x
 
@@ -92,7 +87,7 @@ def hammig_cw(w, a):
             if l == 30 and n < 100:
                 ncw = np.zeros(L)
                 ncw[l+a*n:l+a*n+T] = w
-                plt.plot(cw[l] * ncw)
+                plt.plot(cw[l][l] * ncw[l - a * n])
 
     plt.show()
 
@@ -176,6 +171,7 @@ start = time.time()
 cL = L
 cx = np.zeros(cL, dtype=complex)
 future_list = []
+"""
 with ThreadPoolExecutor(max_workers=8) as e:
     for i in range(THREADS):
         l0 = (int)(i * (cL / THREADS))
@@ -193,6 +189,8 @@ with ThreadPoolExecutor(max_workers=8) as e:
         print("complete: " + str(i))
         cx[l0:l1] = temp_cx[l0:l1]
         i += 1
+"""
+calc_cx(X, cw, w, 0, cL)
 print ("time: " + str(time.time()-start))
 print(cx)
 
