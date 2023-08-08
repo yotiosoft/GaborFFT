@@ -21,36 +21,31 @@ N = int(L / a)  # x
 
 def DGT(x, w, m, n):
     dgt_X = 0
-    for l in range(L):
-        if a * n < l - T or a * n >= l:
-            continue
-        dgt_X += x[l] * w[l][a * n] * np.exp((-2 * np.pi * 1j * m * l) / complex(M))
+    for l in range(a * n, a * n + T):
+        if l >= L:
+            break
+        dgt_X += x[l] * w[l - a * n] * np.exp((-2 * np.pi * 1j * m * l) / complex(M))
     return dgt_X
 
-def IDGT(X, g, l):
+def IDGT(X, g, w, l):
     idgt_x = 0
+    if l == 100:
+        gw = g[l][a * 0: a * 0 + T] * w[l - a * 0: l - a * 0 + T]
+        plt.plot(gw)
+        plt.show()
     for n in range(N):
         if l - a * n < 0 or l - a * n >= CT:
             continue
+        print("l:" + str(l) + ", n:" + str(n) + " : " + str(g[l][a * n] * w[l - a * n]))
         for m in range(M):
-            idgt_x += X[m, n] * g[l][a * n] * np.exp((2 * np.pi * 1j * m * l) / complex(M))
+            idgt_x += X[m, n] * (g[l][a * n] * w[l - a * n]) * np.exp((2 * np.pi * 1j * m * l) / complex(M))
     
     return idgt_x
 
 def hammig_w():
-    w = np.zeros((L, L))
-    tw = np.zeros(T)
+    w = np.zeros(T)
     for t in range(T):
-        tw[t] = 0.54 - 0.46 * np.cos((2 * np.pi * t) / T)
-
-    for i in range(L):
-        for j in range(L):
-            if j - i < 0 or j - i >= T:
-                continue
-            w[i][j] = tw[j - i]
-
-    plt.plot(w[100])
-    plt.show()
+        w[t] = 0.54 - 0.46 * np.cos((2 * np.pi * t) / T)
 
     return w
 
@@ -65,12 +60,27 @@ def hammig_cw(w, a):
     for l in range(l):
         cw[l][l] = cw_a[l]
     """
+    sum = np.zeros(L)
+    for l in range(L):
+        sum[l] = 0
+        for n in range(N):
+            if l == 100 and n < 100:
+                nw = np.zeros(L)
+                nw[l+a*n:l+a*n+T] = w
+                plt.plot(nw)
+            sum[l] += np.abs(w[(l + a * n) % T]) ** 2
+    plt.xlim(0, 1000)
+    plt.show()
+
+    plt.plot(sum)
+    plt.show()
+
+    plt.cla()
+
     cw_a = np.zeros((a, a), dtype=complex)
     for l in range(a):
         for n in range(N):
-            if l + a * n < 0 or l + a * n >= T:
-                continue
-            cw_a[l][l] += np.abs(w[l][a * n]) ** 2
+            cw_a[l][l] += np.abs(w[(l + a * n) % T]) ** 2
         cw_a[l][l] *= M
         cw_a[l][l] = 1 / (np.dot(cw_a[l][l].T, cw_a[l][l]))
 
@@ -78,14 +88,15 @@ def hammig_cw(w, a):
     for l in range(L):
         cw[l][l] = cw_a[l % a][l % a]
 
-    l = 100
-    n = 0
-    cww = cw[l]
+        for n in range(N):
+            if l == 30 and n < 100:
+                ncw = np.zeros(L)
+                ncw[l+a*n:l+a*n+T] = w
+                plt.plot(cw[l] * ncw)
 
-    plt.plot(cww)
     plt.show()
 
-    return np.dot(cw, w)
+    return cw
 
 def calc_X(x, w, m0, m1, n0, n1):
     temp_X = np.zeros((M, N), dtype=complex)
@@ -95,10 +106,10 @@ def calc_X(x, w, m0, m1, n0, n1):
             # print("m:" + str(m) + ", n:" + str(n) + " : " + str(temp_X[m, n]))
     return (temp_X, m0, m1, n0, n1)
 
-def calc_cx(X, cw, l0, l1):
+def calc_cx(X, cw, w, l0, l1):
     temp_cx = np.zeros(L, dtype=complex)
     for l in range(l0, l1):
-        temp_cx[l] = IDGT(X, cw, l)
+        temp_cx[l] = IDGT(X, cw, w, l)
     return (temp_cx, l0, l1)
 
 def db(x, dBref):
@@ -173,7 +184,7 @@ with ThreadPoolExecutor(max_workers=8) as e:
         else:
             l1 = (int)((i + 1) * (cL / THREADS))
         print("l0:" + str(l0) + ", l1:" + str(l1))
-        future = e.submit(calc_cx, X, cw, l0, l1)
+        future = e.submit(calc_cx, X, cw, w, l0, l1)
         future_list.append(future)
 
     i = 0
