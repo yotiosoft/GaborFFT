@@ -10,7 +10,6 @@ import time
 THREADS = 8
 
 T = 500
-CT = 500
 b = 50
 a = 50
 START = 5000
@@ -31,7 +30,7 @@ def IDGT(X, g, w, l):
     idgt_x = 0
     #print("l:" + str(l) + ", g[l][l]:" + str(g[l][l]))
     for n in range(N):
-        if l - a * n < 0 or l - a * n >= CT:
+        if l - a * n < 0 or l - a * n >= T:
             continue
         for m in range(M):
             idgt_x += X[m, n] * (g[l - a * n][l - a * n] * w[l - a * n]) * np.exp((2 * np.pi * 1j * m * l) / complex(M))
