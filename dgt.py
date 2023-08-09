@@ -34,7 +34,7 @@ def IDGT(X, g, w, l):
         if l - a * n < 0 or l - a * n >= CT:
             continue
         for m in range(M):
-            idgt_x += X[m, n] * (g[n][n] * w[l - a * n]) * np.exp((2 * np.pi * 1j * m * l) / complex(M))
+            idgt_x += X[m, n] * (g[l - a * n][l - a * n] * w[l - a * n]) * np.exp((2 * np.pi * 1j * m * l) / complex(M))
     
     return idgt_x
 
