@@ -29,11 +29,12 @@ def DGT(x, w, m, n):
 
 def IDGT(X, g, w, l):
     idgt_x = 0
+    #print("l:" + str(l) + ", g[l][l]:" + str(g[l][l]))
     for n in range(N):
         if l - a * n < 0 or l - a * n >= CT:
             continue
         for m in range(M):
-            idgt_x += X[m, n] * (g[l][l] * w[l - a * n]) * np.exp((2 * np.pi * 1j * m * l) / complex(M))
+            idgt_x += X[m, n] * (g[n][n] * w[l - a * n]) * np.exp((2 * np.pi * 1j * m * l) / complex(M))
     
     return idgt_x
 
