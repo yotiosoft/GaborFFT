@@ -59,7 +59,7 @@ def hammig_cw(w, a):
     for l in range(L):
         sum[l] = 0
         for n in range(N):
-            if l == 100 and n < 100:
+            if l == 10 and n < 10:
                 nw = np.zeros(L)
                 nw[l+a*n:l+a*n+T] = w
                 plt.plot(nw)
@@ -167,16 +167,15 @@ print ("time: " + str(time.time()-start))
 
 # 逆変換
 start = time.time()
-cL = L
-cx = np.zeros(cL, dtype=complex)
+cx = np.zeros(L, dtype=complex)
 future_list = []
 with ThreadPoolExecutor(max_workers=8) as e:
     for i in range(THREADS):
-        l0 = (int)(i * (cL / THREADS))
+        l0 = (int)(i * (L / THREADS))
         if i == THREADS - 1:
-            l1 = cL
+            l1 = L
         else:
-            l1 = (int)((i + 1) * (cL / THREADS))
+            l1 = (int)((i + 1) * (L / THREADS))
         print("l0:" + str(l0) + ", l1:" + str(l1))
         future = e.submit(calc_cx, X, cw, w, l0, l1)
         future_list.append(future)
@@ -188,6 +187,7 @@ with ThreadPoolExecutor(max_workers=8) as e:
         cx[l0:l1] = temp_cx[l0:l1]
         i += 1
 print ("time: " + str(time.time()-start))
+print("cx:")
 print(cx)
 
 # 逆変換結果をwavファイルに出力
@@ -227,6 +227,6 @@ c = ax4.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, y_max, (i
 fig4.colorbar(c)
 
 # 逆変換結果
-ax6.plot(t[0:cL], cx)
+ax6.plot(t, cx)
 
 plt.show()
