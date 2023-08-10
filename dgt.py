@@ -151,15 +151,14 @@ class IDGT:
         return idgt_x
     
     def hammig_g(self, w):
-        sum = np.zeros(self.L)
-        for l in range(self.L):
-            sum[l] = 0
+        sum = np.zeros(self.N)
+        for l in [10]:
             for n in range(self.N):
                 if l == 10 and n < 10:
                     nw = np.zeros(self.L)
                     nw[l+self.a*n:l+self.a*n+self.T] = w
                     plt.plot(nw)
-                sum[l] += np.abs(w[(l + self.a * n) % self.T]) ** 2
+                sum[n] += np.abs(w[(l + self.a * n) % self.T]) ** 2
         plt.xlim(0, 1000)
         plt.show()
 
@@ -168,8 +167,8 @@ class IDGT:
 
         plt.cla()
 
-        cw_a = np.zeros(self.a, dtype=complex)
-        for l in range(self.a):
+        cw_a = np.zeros(self.T, dtype=complex)
+        for l in range(self.T):
             sum = 0
             for n in range(self.N):
                 sum += np.abs(w[(l + self.a * n) % self.T]) ** 2
@@ -177,8 +176,7 @@ class IDGT:
         cw_a = 1 / cw_a
 
         g = np.zeros(self.T, dtype=complex)
-        for t in range(self.T):
-            g[t] = cw_a[t % self.a] * w[t]
+        g = cw_a * w
 
         plt.plot(cw_a)
         plt.show()
