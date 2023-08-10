@@ -170,10 +170,11 @@ class IDGT:
 
         cw_a = np.zeros((self.a, self.a), dtype=complex)
         for l in range(self.a):
+            sum = 0
             for n in range(self.N):
-                cw_a[l][l] += np.abs(w[(l + self.a * n) % self.T]) ** 2
-            cw_a[l][l] *= self.M
-            cw_a[l][l] = 1 / (np.dot(cw_a[l][l].T, cw_a[l][l]))
+                sum += np.abs(w[(l + self.a * n) % self.T]) ** 2
+            sum = self.M * sum
+            cw_a[l][l] = 1 / sum
 
         cw = np.zeros((self.L, self.L), dtype=complex)
         for l in range(self.L):
@@ -228,19 +229,23 @@ w = hammig_w(500)
 
 a = 50
 b = 50
-start = 5000
-end = 20000
+start = 0
+end = 9999999
+x, fs = load_wav("MSK.20100405.M.CS05.wav", start, end)
+end = len(x)
 L = end - start
 N = int(L / a)
 
-x, fs = load_wav("MSK.20100405.M.CS05.wav", start, end)
+# 順変換
 dgt = DGT(len(w), a, b, L)
 X = dgt.dgt(x, w)
+
+# 逆変換
 idgt = IDGT(len(w), a, b, L)
 cx = idgt.idgt(X, w)
 
-# プロット
-plot(x, X, cx, a, b, N, L)
-
 # 逆変換結果をwavファイルに出力
 wio.write("output.wav", fs, np.real(cx))
+
+# プロット
+plot(x, X, cx, a, b, N, L)
