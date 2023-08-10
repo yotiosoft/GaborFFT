@@ -9,18 +9,77 @@ import time
 
 THREADS = 8
 
+def load_wav(path, start, end):
+    fs, x = wio.read(path)
+    print(x)
+    print("Length: " + str(len(x)))
+    print("fs: " + str(fs))
+    if x.ndim == 2:
+        x = x[:, 0]
+    x = x[start:min(end, len(x))]
+    return (x, fs)
+
+def hammig_w(T):
+    w = np.zeros(T)
+    for t in range(T):
+        w[t] = 0.54 - 0.46 * np.cos((2 * np.pi * t) / T)
+    return w
+
+def db(x, dBref):
+    y = 20 * np.log10(x / dBref)                   # 変換式
+    return y                                       # dB値を返す
+
+def plot(x, X, cx, a, b, N, L):
+    t = np.linspace(0, L, L)
+
+    # spectrogram
+    fig1, ax1 = plt.subplots()
+    fig2, ax2 = plt.subplots()
+    fig3, ax3 = plt.subplots()
+    fig4, ax4 = plt.subplots()
+    fig5, ax5 = plt.subplots()
+    fig6, ax6 = plt.subplots()
+
+    # プロット用パラメータ
+    x_max = L
+    y_max = L / 2
+    X = X[0:(int)(y_max/b), 0:(int)(x_max/a)]
+    print(len(X))
+    print(np.linspace(0, y_max, N))
+
+    # decibelize
+    X2 = db(X, 2e-5)
+
+    # 波形
+    ax1.plot(t, x)
+
+    # 1秒分の波形
+    ax2.stem(t, x, '*')
+    ax2.set_xlim(0, 100)
+
+    # 窓
+    ax3.plot(w)
+
+    # 解析結果
+    c = ax5.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, y_max, (int)(y_max/b)), np.abs(X2), 50, cmap='jet')
+    c = ax4.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, y_max, (int)(y_max/b)), np.abs(X), 20, locator=ticker.LogLocator(), cmap='jet')
+    fig4.colorbar(c)
+
+    # 逆変換結果
+    ax6.plot(t, cx)
+
+    plt.show()
+
 class DGT:
-    def __init__(self, t, a, b, start, end):
+    def __init__(self, t, a, b, l):
         self.T = t
         self.a = a
         self.b = b
-        self.START = start
-        self.END = end
-        self.L = end - start
+        self.L = l
         self.M = int(self.L / self.b)  # y
         self.N = int(self.L / self.a)  # x
 
-    def calc_DGT(self, x, w, m, n):
+    def do_DGT(self, x, w, m, n):
         dgt_X = 0
         for l in range(self.a * n, self.a * n + self.T):
             if l >= self.L:
@@ -28,7 +87,59 @@ class DGT:
             dgt_X += x[l] * w[l - self.a * n] * np.exp((-2 * np.pi * 1j * m * l) / complex(self.M))
         return dgt_X
     
-    def calc_IDGT(self, X, g, w, l):
+    def X_part(self, x, w, m0, m1, n0, n1):
+        temp_X = np.zeros((self.M, self.N), dtype=complex)
+        for m in range(m0, m1):
+            for n in range(n0, n1):
+                temp_X[m, n] = self.do_DGT(x, w, m, n)
+                # print("m:" + str(m) + ", n:" + str(n) + " : " + str(temp_X[m, n]))
+        return (temp_X, m0, m1, n0, n1)
+    
+    def X_threads(self, x, w, max_m, thread_num = 8):
+        X = np.zeros((self.M, self.N), dtype=complex)
+        future_list = []
+        prev_m1 = 0
+        with ThreadPoolExecutor(max_workers=thread_num) as e:
+            for i in range(thread_num):
+                m0 = (int)(i * (max_m / thread_num))
+                if i == thread_num - 1:
+                    m1 = max_m
+                else:
+                    m1 = max(prev_m1 + 1, (int)((i + 1) * (max_m / thread_num)))
+                prev_m1 = m1
+                n0 = 0
+                n1 = self.N
+                print("m0:" + str(m0) + ", m1:" + str(m1) + ", n0:" + str(n0) + ", n1:" + str(n1))
+                future = e.submit(self.X_part, x, w, m0, m1, n0, n1)
+                future_list.append(future)
+
+            i = 0
+            for future in futures.as_completed(fs=future_list):
+                temp_X, m0, m1, n0, n1 = future.result()
+                print("complete: " + str(m0) + ":" + str(m1) + ", " + str(n0) + ":" + str(n1))
+                X[m0:m1, n0:n1] = temp_X[m0:m1, n0:n1]
+                i += 1
+
+        return X
+    
+    def dgt(self, x, w):
+        # 解析
+        start = time.time()
+        X = self.X_threads(x, w, self.M)
+        print ("time: " + str(time.time()-start))
+
+        return X
+
+class IDGT:
+    def __init__(self, t, a, b, l):
+        self.T = t
+        self.a = a
+        self.b = b
+        self.L = l
+        self.M = int(self.L / self.b)  # y
+        self.N = int(self.L / self.a)  # x
+    
+    def do_IDGT(self, X, g, w, l):
         idgt_x = 0
         #print("l:" + str(l) + ", g[l][l]:" + str(g[l][l]))
         for n in range(self.N):
@@ -39,28 +150,7 @@ class DGT:
         
         return idgt_x
     
-    def hammig_w(self):
-        w = np.zeros(self.T)
-        for t in range(self.T):
-            w[t] = 0.54 - 0.46 * np.cos((2 * np.pi * t) / self.T)
-
-        return w
-    
-    def calc_X(self, x, w, m0, m1, n0, n1):
-        temp_X = np.zeros((self.M, self.N), dtype=complex)
-        for m in range(m0, m1):
-            for n in range(n0, n1):
-                temp_X[m, n] = self.calc_DGT(x, w, m, n)
-                # print("m:" + str(m) + ", n:" + str(n) + " : " + str(temp_X[m, n]))
-        return (temp_X, m0, m1, n0, n1)
-    
-    def calc_cx(self, X, cw, w, l0, l1):
-        temp_cx = np.zeros(self.L, dtype=complex)
-        for l in range(l0, l1):
-            temp_cx[l] = self.calc_IDGT(X, cw, w, l)
-        return (temp_cx, l0, l1)
-    
-    def hammig_cw(self, w):
+    def hammig_g(self, w):
         sum = np.zeros(self.L)
         for l in range(self.L):
             sum[l] = 0
@@ -98,53 +188,14 @@ class DGT:
 
         return g
     
-    def db(self, x, dBref):
-        y = 20 * np.log10(x / dBref)                   # 変換式
-        return y                                       # dB値を返す
+    def cx_part(self, X, cw, w, l0, l1):
+        temp_cx = np.zeros(self.L, dtype=complex)
+        for l in range(l0, l1):
+            temp_cx[l] = self.do_IDGT(X, cw, w, l)
+        return (temp_cx, l0, l1)
     
-    def dgt(self):
-        w = self.hammig_w()
-        cw = self.hammig_cw(w)
-
-        t = np.linspace(0,self. L, self.L)
-
-        fs, x = wio.read("MSK.20100405.M.CS05.wav")
-        x = x[self.START:self.END]
-        print(x)
-        print("Length: " + str(len(x)))
-        print("fs: " + str(fs))
-        if len(x) > self.L:
-            x = x[0:self.L]
-        elif len(x) < self.L:
-            x = np.append(x, np.zeros(self.L - len(x)))
-
-        # 解析
-        X = np.zeros((self.M, self.N), dtype=complex)
-        future_list = []
-        start = time.time()
-        prev_m1 = 0
-        max_m = self.M
-        with ThreadPoolExecutor(max_workers=8) as e:
-            for i in range(THREADS):
-                m0 = (int)(i * (max_m / THREADS))
-                if i == THREADS - 1:
-                    m1 = max_m
-                else:
-                    m1 = max(prev_m1 + 1, (int)((i + 1) * (max_m / THREADS)))
-                prev_m1 = m1
-                n0 = 0
-                n1 = self.N
-                print("m0:" + str(m0) + ", m1:" + str(m1) + ", n0:" + str(n0) + ", n1:" + str(n1))
-                future = e.submit(self.calc_X, x, w, m0, m1, n0, n1)
-                future_list.append(future)
-
-            i = 0
-            for future in futures.as_completed(fs=future_list):
-                temp_X, m0, m1, n0, n1 = future.result()
-                print("complete: " + str(m0) + ":" + str(m1) + ", " + str(n0) + ":" + str(n1))
-                X[m0:m1, n0:n1] = temp_X[m0:m1, n0:n1]
-                i += 1
-        print ("time: " + str(time.time()-start))
+    def idgt(self, X, w):
+        g = self.hammig_g(w)
 
         # 逆変換
         start = time.time()
@@ -158,7 +209,7 @@ class DGT:
                 else:
                     l1 = (int)((i + 1) * (self.L / THREADS))
                 print("l0:" + str(l0) + ", l1:" + str(l1))
-                future = e.submit(self.calc_cx, X, cw, w, l0, l1)
+                future = e.submit(self.cx_part, X, g, w, l0, l1)
                 future_list.append(future)
 
             i = 0
@@ -171,46 +222,25 @@ class DGT:
         print("cx:")
         print(cx)
 
-        # 逆変換結果をwavファイルに出力
-        wio.write("output.wav", fs, np.real(cx))
+        return cx
 
-        # spectrogram
-        fig1, ax1 = plt.subplots()
-        fig2, ax2 = plt.subplots()
-        fig3, ax3 = plt.subplots()
-        fig4, ax4 = plt.subplots()
-        fig5, ax5 = plt.subplots()
-        fig6, ax6 = plt.subplots()
+w = hammig_w(500)
 
-        # プロット用パラメータ
-        x_max = self.L
-        y_max = self.L / 2
-        X = X[0:(int)(y_max/self.b), 0:(int)(x_max/self.a)]
-        print(len(X))
-        print(np.linspace(0, y_max, self.N))
+a = 50
+b = 50
+start = 5000
+end = 20000
+L = end - start
+N = int(L / a)
 
-        # decibelize
-        X2 = self.db(X, 2e-5)
+x, fs = load_wav("MSK.20100405.M.CS05.wav", start, end)
+dgt = DGT(len(w), a, b, L)
+X = dgt.dgt(x, w)
+idgt = IDGT(len(w), a, b, L)
+cx = idgt.idgt(X, w)
 
-        # 波形
-        ax1.plot(t, x)
+# プロット
+plot(x, X, cx, a, b, N, L)
 
-        # 1秒分の波形
-        ax2.stem(t, x, '*')
-        ax2.set_xlim(0, 100)
-
-        # 窓
-        ax3.plot(w)
-
-        # 解析結果
-        c = ax5.contourf(np.linspace(0, x_max, (int)(x_max/self.a)), np.linspace(0, y_max, (int)(y_max/self.b)), np.abs(X2), 50, cmap='jet')
-        c = ax4.contourf(np.linspace(0, x_max, (int)(x_max/self.a)), np.linspace(0, y_max, (int)(y_max/self.b)), np.abs(X), 20, locator=ticker.LogLocator(), cmap='jet')
-        fig4.colorbar(c)
-
-        # 逆変換結果
-        ax6.plot(t, cx)
-
-        plt.show()
-
-dgt = DGT(500, 50, 50, 5000, 20000)
-dgt.dgt()
+# 逆変換結果をwavファイルに出力
+wio.write("output.wav", fs, np.real(cx))
