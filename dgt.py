@@ -125,7 +125,7 @@ class DGT:
     def dgt(self, x, w):
         # 解析
         start = time.time()
-        X = self.X_threads(x, w, self.M)
+        X = self.X_threads(x, w, int(self.M/2))
         print ("time: " + str(time.time()-start))
 
         return X
@@ -236,13 +236,29 @@ M = int(L / b)
 dgt = DGT(len(w), a, b, L)
 X = dgt.dgt(x, w)
 
+"""
 clear_fs_min = 0
 clear_m_min = int(M / fs * clear_fs_min)
-clear_fs_max = 7000
+clear_fs_max = 3000
 clear_m_max = int(M / fs * clear_fs_max)
 for m in range(clear_m_min, clear_m_max):
     X[m, :] = 0
-X[0:int(M / fs * (fs/2)-1), 0:50] = 0
+"""
+# 男声 → 女声
+new_X = np.zeros((M, N), dtype=complex)
+# 倍音の間隔を広げる
+for m in range(0, M):
+    new_X[m, :] = X[int(m/3), :]
+X = new_X
+
+slide_fs = 300
+min_m = int(M / fs * slide_fs)
+block_fs = int(fs / M)
+slide_m = int(slide_fs / block_fs)
+new_X = np.zeros((M, N), dtype=complex)
+for m in range(min_m, M):
+    new_X[m, :] = X[m-slide_m, :]
+X = new_X
 
 print(X)
 
