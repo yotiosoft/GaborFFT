@@ -276,5 +276,8 @@ cx = idgt.idgt(X, w)
 # 逆変換結果をwavファイルに出力
 wio.write("output.wav", fs, np.real(cx) * pow(10, -3))
 
+# matplotlib でスペクトログラムを描画（比較用）
+plt.specgram(x, Fs = fs)
+
 # プロット
 plot(x, X, cx, a, b, N, L)
