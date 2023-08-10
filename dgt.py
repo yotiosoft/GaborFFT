@@ -83,12 +83,7 @@ def hammig_cw(w, a):
     for l in range(L):
         cw[l][l] = cw_a[l % a][l % a]
 
-        for n in range(N):
-            if l == 30 and n < 100:
-                ncw = np.zeros(L)
-                ncw[l+a*n:l+a*n+T] = w
-                plt.plot(cw[l][l] * ncw[l - a * n])
-
+    plt.plot(cw[0][0] * w)
     plt.show()
 
     return cw
