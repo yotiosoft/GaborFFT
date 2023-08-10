@@ -168,22 +168,20 @@ class IDGT:
 
         plt.cla()
 
-        cw_a = np.zeros((self.a, self.a), dtype=complex)
+        cw_a = np.zeros(self.a, dtype=complex)
         for l in range(self.a):
             sum = 0
             for n in range(self.N):
                 sum += np.abs(w[(l + self.a * n) % self.T]) ** 2
-            sum = self.M * sum
-            cw_a[l][l] = 1 / sum
+            cw_a[l] = self.M * sum
+        cw_a = 1 / cw_a
 
-        cw = np.zeros((self.L, self.L), dtype=complex)
-        for l in range(self.L):
-            cw[l][l] = cw_a[l % self.a][l % self.a]
-
-        g = np.zeros(self.T)
+        g = np.zeros(self.T, dtype=complex)
         for t in range(self.T):
-            g[t] = cw[t][t] * w[t]
+            g[t] = cw_a[t % self.a] * w[t]
 
+        plt.plot(cw_a)
+        plt.show()
         plt.plot(g)
         plt.show()
 
@@ -227,13 +225,12 @@ class IDGT:
 
 w = hammig_w(500)
 
-a = 50
+a = 250
 b = 50
-start = 0
-end = 9999999
+start = 5000
+end = 20000
 x, fs = load_wav("MSK.20100405.M.CS05.wav", start, end)
-end = len(x)
-L = end - start
+L = len(x)
 N = int(L / a)
 
 # 順変換
