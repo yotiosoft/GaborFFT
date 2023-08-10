@@ -230,17 +230,28 @@ end = 20000
 x, fs = load_wav("MSK.20100405.M.CS05.wav", start, end)
 L = len(x)
 N = int(L / a)
+M = int(L / b)
 
 # 順変換
 dgt = DGT(len(w), a, b, L)
 X = dgt.dgt(x, w)
+
+clear_fs_min = 0
+clear_m_min = int(M / fs * clear_fs_min)
+clear_fs_max = 7000
+clear_m_max = int(M / fs * clear_fs_max)
+for m in range(clear_m_min, clear_m_max):
+    X[m, :] = 0
+X[0:int(M / fs * (fs/2)-1), 0:50] = 0
+
+print(X)
 
 # 逆変換
 idgt = IDGT(len(w), a, b, L)
 cx = idgt.idgt(X, w)
 
 # 逆変換結果をwavファイルに出力
-wio.write("output.wav", fs, np.real(cx))
+wio.write("output.wav", fs, np.real(cx) * pow(10, -3))
 
 # プロット
 plot(x, X, cx, a, b, N, L)
