@@ -248,8 +248,16 @@ for m in range(clear_m_min, clear_m_max):
 new_X = np.zeros((M, N), dtype=complex)
 # 倍音の間隔を広げる
 for m in range(0, M):
-    new_X[m, :] = X[int(m/3), :]
+    new_X[m, :] = X[int(m/2), :]
 X = new_X
+# ガウシアンフィルタ
+new_X = np.zeros((M, N), dtype=complex)
+for m in range(0, M):
+    if m-1 >= 0:
+        new_X[m, :] += X[m-1, :]
+    if m+1 < M:
+        new_X[m, :] += X[m+1, :]
+    new_X[m, :] -= 2 * X[m, :]
 
 slide_fs = 300
 min_m = int(M / fs * slide_fs)
