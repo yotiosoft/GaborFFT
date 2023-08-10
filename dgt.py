@@ -171,13 +171,7 @@ class IDGT:
         for l in range(self.T):
             sum = 0
             for n in range(self.N):
-                nw = np.zeros(self.L)
-                print(min(self.T, self.L - (l+self.a*n)))
-                if min(self.T, self.L - (l+self.a*n)) < 0:
-                    continue
-                nw[l+self.a*n:l+self.a*n+min(self.T, self.L - (l+self.a*n))] = w[0:min(self.T, self.L - (l+self.a*n))]
-                sum += np.abs(nw[(l + self.a * n) % self.L]) ** 2
-            print("{0} {1}".format(l, sum))
+                sum += np.abs(w[(l + self.a * n) % self.T]) ** 2
             cw_a[l] = self.M * sum
         cw_a = 1 / cw_a
 
