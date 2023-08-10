@@ -172,6 +172,7 @@ class IDGT:
             sum = 0
             for n in range(self.N):
                 sum += np.abs(w[(l + self.a * n) % self.T]) ** 2
+            print("{0} {1}".format(l, sum))
             cw_a[l] = self.M * sum
         cw_a = 1 / cw_a
 
