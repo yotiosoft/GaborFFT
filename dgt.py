@@ -4,7 +4,6 @@ import scipy.io.wavfile as wio
 from concurrent.futures import ThreadPoolExecutor
 from concurrent import futures
 import matplotlib.ticker as ticker
-
 import time
 
 THREADS = 8
@@ -243,7 +242,7 @@ clear_fs_max = 3000
 clear_m_max = int(M / fs * clear_fs_max)
 for m in range(clear_m_min, clear_m_max):
     X[m, :] = 0
-"""
+
 # 男声 → 女声
 new_X = np.zeros((M, N), dtype=complex)
 # 倍音の間隔を広げる
@@ -269,7 +268,7 @@ for m in range(min_m, M):
 X = new_X
 
 print(X)
-
+"""
 # 逆変換
 idgt = IDGT(len(w), a, b, L)
 cx = idgt.idgt(X, w)
