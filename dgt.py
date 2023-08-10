@@ -33,7 +33,7 @@ def IDGT(X, g, w, l):
         if l - a * n < 0 or l - a * n >= T:
             continue
         for m in range(M):
-            idgt_x += X[m, n] * (g[l - a * n][l - a * n] * w[l - a * n]) * np.exp((2 * np.pi * 1j * m * l) / complex(M))
+            idgt_x += X[m, n] * g[l - a * n] * np.exp((2 * np.pi * 1j * m * l) / complex(M))
     
     return idgt_x
 
@@ -83,10 +83,14 @@ def hammig_cw(w, a):
     for l in range(L):
         cw[l][l] = cw_a[l % a][l % a]
 
-    plt.plot(cw[0][0] * w)
+    g = np.zeros(T)
+    for t in range(T):
+        g[t] = cw[t][t] * w[t]
+
+    plt.plot(g)
     plt.show()
 
-    return cw
+    return g
 
 def calc_X(x, w, m0, m1, n0, n1):
     temp_X = np.zeros((M, N), dtype=complex)
