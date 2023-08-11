@@ -3,20 +3,26 @@ import scipy.io.wavfile as wio
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+import sys
 
 # sample: wav
 w = mydgt.hammig_w(500)
 
-a = 50
-b = 50
-start = 5000
-end = 20000
+a = 150
+b = 150
+start = 0
+end = sys.maxsize    # ファイル全体
+
+# 音声を読み込み
 x1, fs1 = mydgt.load_wav("F1AES2_parts.wav", start, end)
+x2, fs2 = mydgt.load_wav("M1GIM01.wav", start, end)
+
+# 音声1
 L1 = len(x1)
 N1 = int(L1 / a)
 M1 = int(L1 / b)
-x2, fs2 = mydgt.load_wav("M1GIM01.wav", start, end)
-L2 = len(x1)
+# 音声2
+L2 = len(x2)
 N2 = int(L2 / a)
 M2 = int(L2 / b)
 
@@ -24,7 +30,7 @@ if fs1 != fs2:
     print("Error: fs1 != fs2")
     exit(1)
 
-# 順変換
+# 各音声を順変換
 dgt1 = mydgt.DGT(len(w), a, b, L1)
 X1 = dgt1.dgt(x1, w)
 dgt2 = mydgt.DGT(len(w), a, b, L2)
@@ -42,15 +48,12 @@ else:
 
 print(X)
 
-# 逆変換
+# 合成した上で逆変換
 idgt = mydgt.IDGT(len(w), a, b, L)
 cx = idgt.idgt(X, w)
 
 # 逆変換結果をwavファイルに出力
-wio.write("output.wav", fs1, np.real(cx) * pow(10, -4))
+wio.write("mixed_wave.wav", fs1, np.real(cx) * pow(10, -4))
 
-# matplotlib でスペクトログラムを描画（比較用）
-plt.specgram(np.real(cx), Fs = fs1)
-
-# プロット
-mydgt.plot(x1, X, cx, a, b, N1, L)
+mydgt.plot(x1, X1, cx, w, a, b, N1, L1)
+mydgt.plot(x2, X2, cx, w, a, b, N2, L2)

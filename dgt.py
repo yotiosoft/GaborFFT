@@ -28,7 +28,7 @@ def db(x, dBref):
     y = 20 * np.log10(x / dBref)                   # 変換式
     return y                                       # dB値を返す
 
-def plot(x, X, cx, a, b, N, L):
+def plot(x, X, cx, w, a, b, N, L):
     t = np.linspace(0, L, L)
 
     # spectrogram
@@ -65,6 +65,7 @@ def plot(x, X, cx, a, b, N, L):
     fig4.colorbar(c)
 
     # 逆変換結果
+    t = np.linspace(0, len(cx), len(cx))
     ax6.plot(t, cx)
 
     plt.show()
@@ -297,4 +298,4 @@ if __name__ == "__main__":
         print("l:" + str(l) + ", x[l]:" + str(x[l]) + ", cx[l]:" + str(cx[l]))
 
     # プロット
-    plot(x, X, cx, a, b, N, L)
+    plot(x, X, cx, w, a, b, N, L)
