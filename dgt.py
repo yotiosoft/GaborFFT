@@ -124,7 +124,7 @@ class DGT:
     def dgt(self, x, w):
         # 解析
         start = time.time()
-        X = self.X_threads(x, w, int(self.M/2))
+        X = self.X_threads(x, w, self.M)
         print ("time: " + str(time.time()-start))
 
         return X
@@ -148,6 +148,12 @@ class IDGT:
                 idgt_x += X[m, n] * g[l - self.a * n] * np.exp((2 * np.pi * 1j * m * l) / complex(self.M))
         
         return idgt_x
+
+    def slide_window(self, w, l):
+        new_w = np.zeros(self.L)
+        for t in range(self.T):
+            new_w[l + t] = w[t]
+        return new_w
     
     def hammig_g(self, w):
         sum = np.zeros(self.N)
@@ -169,8 +175,9 @@ class IDGT:
         cw_a = np.zeros(self.T, dtype=complex)
         for l in range(self.T):
             sum = 0
+            nw = self.slide_window(w, l)
             for n in range(self.N):
-                sum += np.abs(w[(l + self.a * n) % self.T]) ** 2
+                sum += np.abs(nw[(l + self.a * n) % self.L]) ** 2
             cw_a[l] = self.M * sum
         cw_a = 1 / cw_a
 
@@ -277,7 +284,7 @@ cx = idgt.idgt(X, w)
 wio.write("output.wav", fs, np.real(cx) * pow(10, -3))
 
 # matplotlib でスペクトログラムを描画（比較用）
-plt.specgram(x, Fs = fs)
+#plt.specgram(x, Fs = fs)
 
 # プロット
 plot(x, X, cx, a, b, N, L)
