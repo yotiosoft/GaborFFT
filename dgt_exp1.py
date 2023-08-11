@@ -20,39 +20,27 @@ L1 = len(x1)
 L2 = len(x2)
 
 if L1 > L2:
-    a1 = a
-    b1 = b
-    N1 = N2 = int(L1 / a)
-    M1 = M2 = int(L1 / b)
-    a2 = int(a1 * L2 / L1)
-    b2 = int(b1 * L2 / L1)
+    x2 = np.append(x2, np.zeros(L1 - L2))
 else:
-    a2 = a
-    b2 = b
-    N1 = N2 = int(L2 / a)
-    M1 = M2 = int(L2 / b)
-    a1 = int(a2 * L1 / L2)
-    b1 = int(b2 * L1 / L2)
+    x1 = np.append(x1, np.zeros(L2 - L1))
+L = max(L1, L2)
+
+N = int(L / a)
+M = int(L / b)
 
 if fs1 != fs2:
     print("Error: fs1 != fs2")
     exit(1)
 
 # 各音声を順変換
-dgt1 = mydgt.DGT(len(w), a1, b1, L1)
+dgt1 = mydgt.DGT(len(w), a, b, L)
 X1 = dgt1.dgt(x1, w)
-dgt2 = mydgt.DGT(len(w), a2, b2, L2)
+dgt2 = mydgt.DGT(len(w), a, b, L)
 X2 = dgt2.dgt(x2, w)
 
 # 合成
-if L1 > L2:
-    X = X1.copy()
-    X[0:M2, 0:N2] += X2
-    L = L1
-else:
-    X = X2.copy()
-    X[0:M1, 0:N1] += X1
-    L = L2
+X = X2.copy()
+X[0:M, 0:N] += X1
 
 print(X)
 
@@ -63,5 +51,6 @@ cx = idgt.idgt(X, w)
 # 逆変換結果をwavファイルに出力
 wio.write("mixed_wave.wav", fs1, np.real(cx) * pow(10, -4))
 
-mydgt.plot(x1, X1, cx, w, a1, b1, N1, L1)
-mydgt.plot(x2, X2, cx, w, a2, b2, N2, L2)
+mydgt.plot(x1, X1, cx, w, a, b, N, L)
+mydgt.plot(x2, X2, cx, w, a, b, N, L)
+mydgt.plot(x2, X, cx, w, a, b, N, L)
