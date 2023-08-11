@@ -83,7 +83,7 @@ class DGT:
         for l in range(self.a * n, self.a * n + self.T):
             if l >= self.L:
                 break
-            dgt_X += x[l] * w[l - self.a * n] * np.exp((-2 * np.pi * 1j * m * l) / complex(self.M))
+            dgt_X += x[l] * w[l][l - self.a * n] * np.exp((-2 * np.pi * 1j * m * l) / complex(self.M))
         return dgt_X
     
     def X_part(self, x, w, m0, m1, n0, n1):
@@ -121,7 +121,17 @@ class DGT:
 
         return X
     
-    def dgt(self, x, w):
+    def slide_window(self, w, l):
+        new_w = np.zeros(self.L)
+        for t in range(self.T):
+            new_w[(l + t) % self.L] = w[t]
+        return new_w
+    
+    def dgt(self, x, tw):
+        w = np.zeros((self.L, self.L))
+        for l in range(self.L):
+            w[l] = self.slide_window(tw, l)
+
         # 解析
         start = time.time()
         X = self.X_threads(x, w, self.M)
@@ -152,27 +162,11 @@ class IDGT:
     def slide_window(self, w, l):
         new_w = np.zeros(self.L)
         for t in range(self.T):
-            new_w[l + t] = w[t]
+            new_w[(l + t) % self.L] = w[t]
         return new_w
     
     def hammig_g(self, w):
-        sum = np.zeros(self.N)
-        for l in [10]:
-            for n in range(self.N):
-                if l == 10 and n < 10:
-                    nw = np.zeros(self.L)
-                    nw[l+self.a*n:l+self.a*n+self.T] = w
-                    plt.plot(nw)
-                sum[n] += np.abs(w[(l + self.a * n) % self.T]) ** 2
-        plt.xlim(0, 1000)
-        plt.show()
-
-        plt.plot(sum)
-        plt.show()
-
-        plt.cla()
-
-        cw_a = np.zeros(self.T, dtype=complex)
+        cw_a = np.zeros(self.L, dtype=complex)
         for l in range(self.T):
             sum = 0
             nw = self.slide_window(w, l)
@@ -182,7 +176,7 @@ class IDGT:
         cw_a = 1 / cw_a
 
         g = np.zeros(self.T, dtype=complex)
-        g = cw_a * w
+        g = cw_a[0:self.T] * w[0:self.T]
 
         plt.plot(cw_a)
         plt.show()
