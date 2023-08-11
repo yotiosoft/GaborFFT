@@ -239,8 +239,8 @@ X[M-1-clear_m_max:M-1-clear_m_min, :] = 0
 new_X = np.zeros((M, N), dtype=complex)
 # 倍音の間隔を広げる
 for m in range(0, int(M/2)):
-    new_X[m, :] = X[int(m/3), :]
-    new_X[M-1-m, :] = X[M-1-int(m/3), :]
+    new_X[m, :] = X[int(m/2), :]
+    new_X[M-1-m, :] = X[M-1-int(m/2), :]
 X = new_X
 """
 """
@@ -255,6 +255,27 @@ for m in range(min_m, int(M/2)):
 X = new_X
 X[int(M/2):M, :] = np.flipud(X[0:int(M/2), :])
 """
+
+slide_fs = 300
+min_m = int(M / fs * slide_fs)
+block_fs = int(fs / M)
+slide_m = int(slide_fs / block_fs)
+new_X = X.copy()
+for m in range(min_m, int(M/2)):
+    new_X[m, :] += X[m-slide_m, :]
+    new_X[M-1-m, :] += X[m-slide_m, :]
+X = new_X
+
+slide_fs = 300
+min_m = int(M / fs * slide_fs)
+block_fs = int(fs / M)
+slide_m = int(slide_fs / block_fs)
+new_X = X.copy()
+for m in range(min_m, int(M/2)):
+    new_X[m, :] -= X[m-slide_m, :]
+    new_X[M-1-m, :] -= X[m-slide_m, :]
+X = new_X
+
 print(X)
 
 # 逆変換
