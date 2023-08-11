@@ -160,7 +160,7 @@ class IDGT:
         for l in range(self.T):
             sum = 0
             nw = self.slide_window(w, l)
-            for n in range(int(-l/a), int(-l/a) + self.T):
+            for n in range(self.N):
                 sum += np.abs(nw[(l + self.a * n) % self.L]) ** 2
             cw_a[l] = self.M * sum
         cw_a = 1 / cw_a
@@ -256,14 +256,16 @@ X = new_X
 X[int(M/2):M, :] = np.flipud(X[0:int(M/2), :])
 """
 
+before_X = X.copy()
+
 slide_fs = 300
 min_m = int(M / fs * slide_fs)
 block_fs = int(fs / M)
 slide_m = int(slide_fs / block_fs)
 new_X = X.copy()
 for m in range(min_m, int(M/2)):
-    new_X[m, :] += X[m-slide_m, :]
-    new_X[M-1-m, :] += X[m-slide_m, :]
+    new_X[m, :] += before_X[m-slide_m, :]
+    new_X[M-1-m, :] += before_X[M-1-m+slide_m, :]
 X = new_X
 
 slide_fs = 300
@@ -272,8 +274,8 @@ block_fs = int(fs / M)
 slide_m = int(slide_fs / block_fs)
 new_X = X.copy()
 for m in range(min_m, int(M/2)):
-    new_X[m, :] -= X[m-slide_m, :]
-    new_X[M-1-m, :] -= X[m-slide_m, :]
+    new_X[m, :] -= before_X[m-slide_m, :]
+    new_X[M-1-m, :] -= before_X[M-1-m+slide_m, :]
 X = new_X
 
 print(X)
