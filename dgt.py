@@ -41,7 +41,7 @@ def plot(x, X, cx, a, b, N, L):
 
     # プロット用パラメータ
     x_max = L
-    y_max = L / 2
+    y_max = L
     X = X[0:(int)(y_max/b), 0:(int)(x_max/a)]
     print(len(X))
     print(np.linspace(0, y_max, N))
@@ -228,38 +228,33 @@ X = dgt.dgt(x, w)
 
 """
 clear_fs_min = 0
-clear_m_min = int(M / fs * clear_fs_min)
+clear_m_min = int((M / 2) / fs * clear_fs_min)
 clear_fs_max = 3000
-clear_m_max = int(M / fs * clear_fs_max)
-for m in range(clear_m_min, clear_m_max):
-    X[m, :] = 0
-
+clear_m_max = int((M / 2) / fs * clear_fs_max)
+X[clear_m_min:clear_m_max, :] = 0
+X[M-1-clear_m_max:M-1-clear_m_min, :] = 0
+"""
 # 男声 → 女声
 new_X = np.zeros((M, N), dtype=complex)
 # 倍音の間隔を広げる
-for m in range(0, M):
+for m in range(0, int(M/2)):
     new_X[m, :] = X[int(m/2), :]
+    new_X[M-1-m, :] = X[int(m/2), :]
 X = new_X
-# ガウシアンフィルタ
-new_X = np.zeros((M, N), dtype=complex)
-for m in range(0, M):
-    if m-1 >= 0:
-        new_X[m, :] += X[m-1, :]
-    if m+1 < M:
-        new_X[m, :] += X[m+1, :]
-    new_X[m, :] -= 2 * X[m, :]
 
 slide_fs = 300
 min_m = int(M / fs * slide_fs)
 block_fs = int(fs / M)
 slide_m = int(slide_fs / block_fs)
 new_X = np.zeros((M, N), dtype=complex)
-for m in range(min_m, M):
+for m in range(min_m, int(M/2)):
     new_X[m, :] = X[m-slide_m, :]
+    new_X[M-1-m, :] = X[m-slide_m, :]
 X = new_X
+X[int(M/2):M, :] = np.flipud(X[0:int(M/2), :])
 
 print(X)
-"""
+
 # 逆変換
 idgt = IDGT(len(w), a, b, L)
 cx = idgt.idgt(X, w)
