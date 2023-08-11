@@ -31,6 +31,7 @@ M = int(L / b)
 if fs1 != fs2:
     print("Error: fs1 != fs2")
     exit(1)
+fs = fs1
 
 # 各音声を順変換
 dgt1 = mydgt.DGT(len(w), a, b, L)
@@ -51,6 +52,6 @@ cx = idgt.idgt(X, w)
 # 逆変換結果をwavファイルに出力
 wio.write("mixed_wave.wav", fs1, np.real(cx) * pow(10, -4))
 
-mydgt.plot(x1, X1, cx, w, a, b, N, L)
-mydgt.plot(x2, X2, cx, w, a, b, N, L)
-mydgt.plot(x2, X, cx, w, a, b, N, L)
+mydgt.plot(x1, X1, cx, w, a, b, N, L, fs)
+mydgt.plot(x2, X2, cx, w, a, b, N, L, fs)
+mydgt.plot(x2, X, cx, w, a, b, N, L, fs)

@@ -28,7 +28,7 @@ def db(x, dBref):
     y = 20 * np.log10(x / dBref)                   # 変換式
     return y                                       # dB値を返す
 
-def plot(x, X, cx, w, a, b, N, L):
+def plot(x, X, cx, w, a, b, N, L, fs):
     t = np.linspace(0, L, L)
 
     # spectrogram
@@ -41,7 +41,7 @@ def plot(x, X, cx, w, a, b, N, L):
 
     # プロット用パラメータ
     x_max = L
-    y_max = L
+    y_max = L / 2
     X = X[0:(int)(y_max/b), 0:(int)(x_max/a)]
     print(len(X))
     print(np.linspace(0, y_max, N))
@@ -60,12 +60,11 @@ def plot(x, X, cx, w, a, b, N, L):
     ax3.plot(w)
 
     # 解析結果
-    c = ax5.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, y_max, (int)(y_max/b)), np.abs(X2), 50, cmap='jet')
-    c = ax4.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, y_max, (int)(y_max/b)), np.abs(X), 20, locator=ticker.LogLocator(), cmap='jet')
+    c = ax5.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, int(fs/2), int(y_max/b)), np.abs(X2), 50, cmap='jet')
+    c = ax4.contourf(np.linspace(0, x_max, (int)(x_max/a)), np.linspace(0, int(fs/2), int(y_max/b)), np.abs(X), 20, locator=ticker.LogLocator(), cmap='jet')
     fig4.colorbar(c)
 
     # 逆変換結果
-    t = np.linspace(0, len(cx), len(cx))
     ax6.plot(t, cx)
 
     plt.show()
@@ -218,7 +217,7 @@ if __name__ == "__main__":
     w = hammig_w(500)
 
     a = 50
-    b = 50
+    b = 25
     start = 5000
     end = 20000
     x, fs = load_wav("MSK.20100405.M.CS05.wav", start, end)
@@ -298,4 +297,4 @@ if __name__ == "__main__":
         print("l:" + str(l) + ", x[l]:" + str(x[l]) + ", cx[l]:" + str(cx[l]))
 
     # プロット
-    plot(x, X, cx, w, a, b, N, L)
+    plot(x, X, cx, w, a, b, N, L, fs)
