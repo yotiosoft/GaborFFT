@@ -16,24 +16,32 @@ end = sys.maxsize    # ファイル全体
 # 音声を読み込み
 x1, fs1 = mydgt.load_wav("F1AES2_parts.wav", start, end)
 x2, fs2 = mydgt.load_wav("M1GIM01.wav", start, end)
-
-# 音声1
 L1 = len(x1)
-N1 = int(L1 / a)
-M1 = int(L1 / b)
-# 音声2
 L2 = len(x2)
-N2 = int(L2 / a)
-M2 = int(L2 / b)
+
+if L1 > L2:
+    a1 = a
+    b1 = b
+    N1 = N2 = int(L1 / a)
+    M1 = M2 = int(L1 / b)
+    a2 = int(a1 * L2 / L1)
+    b2 = int(b1 * L2 / L1)
+else:
+    a2 = a
+    b2 = b
+    N1 = N2 = int(L2 / a)
+    M1 = M2 = int(L2 / b)
+    a1 = int(a2 * L1 / L2)
+    b1 = int(b2 * L1 / L2)
 
 if fs1 != fs2:
     print("Error: fs1 != fs2")
     exit(1)
 
 # 各音声を順変換
-dgt1 = mydgt.DGT(len(w), a, b, L1)
+dgt1 = mydgt.DGT(len(w), a1, b1, L1)
 X1 = dgt1.dgt(x1, w)
-dgt2 = mydgt.DGT(len(w), a, b, L2)
+dgt2 = mydgt.DGT(len(w), a2, b2, L2)
 X2 = dgt2.dgt(x2, w)
 
 # 合成
@@ -55,5 +63,5 @@ cx = idgt.idgt(X, w)
 # 逆変換結果をwavファイルに出力
 wio.write("mixed_wave.wav", fs1, np.real(cx) * pow(10, -4))
 
-mydgt.plot(x1, X1, cx, w, a, b, N1, L1)
-mydgt.plot(x2, X2, cx, w, a, b, N2, L2)
+mydgt.plot(x1, X1, cx, w, a1, b1, N1, L1)
+mydgt.plot(x2, X2, cx, w, a2, b2, N2, L2)
