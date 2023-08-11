@@ -145,7 +145,7 @@ class IDGT:
             if l - self.a * n < 0 or l - self.a * n >= self.T:
                 continue
             for m in range(self.M):
-                idgt_x += X[m, n] * g[l - self.a * n] * np.exp((2 * np.pi * 1j * m * l) / complex(self.M))
+                idgt_x += X[m, n] * g[(l - self.a * n) % self.T] * np.exp((2 * np.pi * 1j * m * l) / complex(self.M))
         
         return idgt_x
 
@@ -160,7 +160,7 @@ class IDGT:
         for l in range(self.T):
             sum = 0
             nw = self.slide_window(w, l)
-            for n in range(self.N):
+            for n in range(int(-l/a), int(-l/a) + self.T):
                 sum += np.abs(nw[(l + self.a * n) % self.L]) ** 2
             cw_a[l] = self.M * sum
         cw_a = 1 / cw_a
@@ -168,10 +168,10 @@ class IDGT:
         g = np.zeros(self.T, dtype=complex)
         g = cw_a[0:self.T] * w[0:self.T]
 
-        plt.plot(cw_a)
-        plt.show()
-        plt.plot(g)
-        plt.show()
+        #plt.plot(cw_a)
+        #plt.show()
+        #plt.plot(g)
+        #plt.show()
 
         return g
     
@@ -214,7 +214,7 @@ class IDGT:
 w = hammig_w(500)
 
 a = 50
-b = 25
+b = 50
 start = 5000
 end = 20000
 x, fs = load_wav("MSK.20100405.M.CS05.wav", start, end)
@@ -234,14 +234,16 @@ clear_m_max = int((M / 2) / fs * clear_fs_max)
 X[clear_m_min:clear_m_max, :] = 0
 X[M-1-clear_m_max:M-1-clear_m_min, :] = 0
 """
+"""
 # 男声 → 女声
 new_X = np.zeros((M, N), dtype=complex)
 # 倍音の間隔を広げる
 for m in range(0, int(M/2)):
-    new_X[m, :] = X[int(m/2), :]
-    new_X[M-1-m, :] = X[int(m/2), :]
+    new_X[m, :] = X[int(m/3), :]
+    new_X[M-1-m, :] = X[M-1-int(m/3), :]
 X = new_X
-
+"""
+"""
 slide_fs = 300
 min_m = int(M / fs * slide_fs)
 block_fs = int(fs / M)
@@ -252,7 +254,7 @@ for m in range(min_m, int(M/2)):
     new_X[M-1-m, :] = X[m-slide_m, :]
 X = new_X
 X[int(M/2):M, :] = np.flipud(X[0:int(M/2), :])
-
+"""
 print(X)
 
 # 逆変換
@@ -260,10 +262,13 @@ idgt = IDGT(len(w), a, b, L)
 cx = idgt.idgt(X, w)
 
 # 逆変換結果をwavファイルに出力
-wio.write("output.wav", fs, np.real(cx) * pow(10, -6))
+wio.write("output.wav", fs, np.real(cx) * pow(10, -4))
 
 # matplotlib でスペクトログラムを描画（比較用）
-#plt.specgram(x, Fs = fs)
+plt.specgram(np.real(cx), Fs = fs)
+
+for l in range(L):
+    print("l:" + str(l) + ", x[l]:" + str(x[l]) + ", cx[l]:" + str(cx[l]))
 
 # プロット
 plot(x, X, cx, a, b, N, L)
