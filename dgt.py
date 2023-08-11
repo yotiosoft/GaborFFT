@@ -83,7 +83,7 @@ class DGT:
         for l in range(self.a * n, self.a * n + self.T):
             if l >= self.L:
                 break
-            dgt_X += x[l] * w[l][l - self.a * n] * np.exp((-2 * np.pi * 1j * m * l) / complex(self.M))
+            dgt_X += x[l] * w[l - self.a * n] * np.exp((-2 * np.pi * 1j * m * l) / complex(self.M))
         return dgt_X
     
     def X_part(self, x, w, m0, m1, n0, n1):
@@ -121,17 +121,7 @@ class DGT:
 
         return X
     
-    def slide_window(self, w, l):
-        new_w = np.zeros(self.L)
-        for t in range(self.T):
-            new_w[(l + t) % self.L] = w[t]
-        return new_w
-    
-    def dgt(self, x, tw):
-        w = np.zeros((self.L, self.L))
-        for l in range(self.L):
-            w[l] = self.slide_window(tw, l)
-
+    def dgt(self, x, w):
         # 解析
         start = time.time()
         X = self.X_threads(x, w, self.M)
@@ -223,8 +213,8 @@ class IDGT:
 
 w = hammig_w(500)
 
-a = 250
-b = 50
+a = 50
+b = 25
 start = 5000
 end = 20000
 x, fs = load_wav("MSK.20100405.M.CS05.wav", start, end)
@@ -275,7 +265,7 @@ idgt = IDGT(len(w), a, b, L)
 cx = idgt.idgt(X, w)
 
 # 逆変換結果をwavファイルに出力
-wio.write("output.wav", fs, np.real(cx) * pow(10, -3))
+wio.write("output.wav", fs, np.real(cx) * pow(10, -6))
 
 # matplotlib でスペクトログラムを描画（比較用）
 #plt.specgram(x, Fs = fs)
