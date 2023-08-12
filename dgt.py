@@ -5,6 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 from concurrent import futures
 import matplotlib.ticker as ticker
 import time
+import sys
 
 THREADS = 8
 
@@ -219,9 +220,12 @@ if __name__ == "__main__":
 
     a = 50
     b = 25
-    start = 5000
-    end = 20000
+    start = 0
+    end = sys.maxsize    # ファイル全体
     x, fs = load_wav("MSK.20100405.M.CS05.wav", start, end)
+    # x を a, b で割り切れる数まで0埋め
+    x = np.append(x, np.zeros(b - (len(x) % b)))
+    print("len(x):" + str(len(x)))
     L = len(x)
     N = int(L / a)
     M = int(L / b)
@@ -229,59 +233,6 @@ if __name__ == "__main__":
     # 順変換
     dgt = DGT(len(w), a, b, L)
     X = dgt.dgt(x, w)
-
-    """
-    clear_fs_min = 0
-    clear_m_min = int((M / 2) / fs * clear_fs_min)
-    clear_fs_max = 3000
-    clear_m_max = int((M / 2) / fs * clear_fs_max)
-    X[clear_m_min:clear_m_max, :] = 0
-    X[M-1-clear_m_max:M-1-clear_m_min, :] = 0
-    """
-    """
-    # 男声 → 女声
-    new_X = np.zeros((M, N), dtype=complex)
-    # 倍音の間隔を広げる
-    for m in range(0, int(M/2)):
-        new_X[m, :] = X[int(m/2), :]
-        new_X[M-1-m, :] = X[M-1-int(m/2), :]
-    X = new_X
-    """
-    """
-    slide_fs = 300
-    min_m = int(M / fs * slide_fs)
-    block_fs = int(fs / M)
-    slide_m = int(slide_fs / block_fs)
-    new_X = np.zeros((M, N), dtype=complex)
-    for m in range(min_m, int(M/2)):
-        new_X[m, :] = X[m-slide_m, :]
-        new_X[M-1-m, :] = X[m-slide_m, :]
-    X = new_X
-    X[int(M/2):M, :] = np.flipud(X[0:int(M/2), :])
-    """
-
-    before_X = X.copy()
-
-    slide_fs = 300
-    min_m = int(M / fs * slide_fs)
-    block_fs = int(fs / M)
-    slide_m = int(slide_fs / block_fs)
-    new_X = X.copy()
-    for m in range(min_m, int(M/2)):
-        new_X[m, :] += before_X[m-slide_m, :]
-        new_X[M-1-m, :] += before_X[M-1-m+slide_m, :]
-    X = new_X
-
-    slide_fs = 300
-    min_m = int(M / fs * slide_fs)
-    block_fs = int(fs / M)
-    slide_m = int(slide_fs / block_fs)
-    new_X = X.copy()
-    for m in range(min_m, int(M/2)):
-        new_X[m, :] -= before_X[m-slide_m, :]
-        new_X[M-1-m, :] -= before_X[M-1-m+slide_m, :]
-    X = new_X
-
     print(X)
 
     # 逆変換

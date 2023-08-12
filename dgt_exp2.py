@@ -12,8 +12,8 @@ plt.show()
 
 a = 50
 b = 25
-start = 5000
-end = 20000
+start = 0
+end = sys.maxsize    # ファイル全体
 
 # 音声を読み込み
 x, fs = mydgt.load_wav("MSK.20100405.M.CS05.wav", start, end)
