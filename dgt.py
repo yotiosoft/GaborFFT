@@ -65,7 +65,8 @@ def plot(x, X, cx, w, a, b, N, L, fs):
     fig4.colorbar(c)
 
     # 逆変換結果
-    ax6.plot(t, cx)
+    if cx is not None:
+        ax6.plot(t, cx)
 
     plt.show()
 
