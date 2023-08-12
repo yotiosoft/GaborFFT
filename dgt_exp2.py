@@ -8,8 +8,8 @@ import sys
 # sample: wav
 w = mydgt.hammig_w(500)
 
-a = 150
-b = 150
+a = 50
+b = 50
 start = 0
 end = sys.maxsize    # ファイル全体
 
@@ -46,7 +46,7 @@ for n in range(M):
         n_new = n + (np.abs((X_tw[m, n] / X[m, n]).real) / a)
         m_new = m - (np.abs((X_dwdt[m, n] / X[m, n]).imag) / b)
         print(n_new, m_new)
-        new_X[int(m_new), int(n_new)] += X[m, n]
+        new_X[int(m_new), int(n_new)] = X[m, n]
 
 
 # 合成した上で逆変換
