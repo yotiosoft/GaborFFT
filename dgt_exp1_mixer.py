@@ -15,7 +15,9 @@ end = sys.maxsize    # ファイル全体
 
 # 音声を読み込み
 x1, fs1 = mydgt.load_wav("F1AES2_parts.wav", start, end)
+x1 = np.append(x1, np.zeros(b - (len(x1) % b)))               # a, b で割り切れる数まで0埋め
 x2, fs2 = mydgt.load_wav("M1GIM01.wav", start, end)
+x2 = np.append(x2, np.zeros(b - (len(x2) % b)))               # a, b で割り切れる数まで0埋め
 L1 = len(x1)
 L2 = len(x2)
 

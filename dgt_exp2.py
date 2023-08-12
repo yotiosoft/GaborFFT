@@ -6,12 +6,12 @@ import matplotlib.ticker as ticker
 import sys
 
 # sample: wav
-w = mydgt.hammig_w(500)
+w = mydgt.hammig_w(200)
 plt.plot(w)
 plt.show()
 
 a = 50
-b = 25
+b = 50
 start = 0
 end = sys.maxsize    # ファイル全体
 
@@ -46,8 +46,8 @@ X_dwdt = dgt3.dgt(x, dw)
 new_X = np.zeros((M, N), dtype=np.complex)
 for m in range(M):
     for n in range(N):
-        n_new = n + (np.abs((X_tw[m, n] / X[m, n]).real) / a)
-        m_new = m - (np.abs((X_dwdt[m, n] / X[m, n]).imag) / b)
+        n_new = n + (np.abs((X_tw[m, n] / X[m, n]).real))
+        m_new = m - (np.abs((X_dwdt[m, n] / X[m, n]).imag))
         print(n_new, m_new)
         if int(n_new) >= N or int(m_new) >= M:
             continue

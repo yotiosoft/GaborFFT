@@ -15,10 +15,12 @@ end = sys.maxsize    # ファイル全体
 
 # 合成音声を読み込み
 x_mixed, fs = mydgt.load_wav("mixed_wave.wav", start, end)
+x1 = np.append(x_mixed, np.zeros(b - (len(x_mixed) % b)))               # a, b で割り切れる数まで0埋め
 L_mixed = len(x_mixed)
 
 # 分離したい音声を読み込み
 x_target, fs = mydgt.load_wav("M1GIM01.wav", start, end)
+x_target = np.append(x_target, np.zeros(b - (len(x_target) % b)))       # a, b で割り切れる数まで0埋め
 L_target = len(x_target)
 
 if L_mixed > L_target:
