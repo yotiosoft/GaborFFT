@@ -1,4 +1,4 @@
-import dgt as mydgt
+import mydgt
 import scipy.io.wavfile as wio
 import numpy as np
 import matplotlib.pyplot as plt
@@ -45,9 +45,9 @@ print(X_mixed)
 
 # 合成した上で逆変換
 idgt = mydgt.IDGT(len(w), a, b, L)
-cx = idgt.idgt(X_mixed, w)
+tx = idgt.idgt(X_mixed, w)
 
 # 逆変換結果をwavファイルに出力
-wio.write("isolated_wave.wav", fs, np.real(cx) * pow(10, -4))
+wio.write("isolated_wave.wav", fs, np.real(tx) * pow(10, -4))
 
-mydgt.plot(x_mixed, X_mixed, cx, w, a, b, N, L, fs)
+mydgt.plot(x_mixed, X_mixed, tx, w, a, b, N, L, fs)

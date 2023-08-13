@@ -1,4 +1,4 @@
-import dgt as mydgt
+import mydgt
 import scipy.io.wavfile as wio
 import numpy as np
 import matplotlib.pyplot as plt
@@ -55,9 +55,9 @@ print(X)
 
 # 合成した上で逆変換
 idgt = mydgt.IDGT(len(w), a, b, L)
-cx = idgt.idgt(X, w)
+tx = idgt.idgt(X, w)
 
 # 逆変換結果をwavファイルに出力
-wio.write("exp2_output_only_inst.wav", fs, np.real(cx) * pow(10, -4))
+wio.write("exp2_output_only_inst.wav", fs, np.real(tx) * pow(10, -4))
 
-mydgt.plot(x, X, cx, w, a, b, N, L, fs)
+mydgt.plot(x, X, tx, w, a, b, N, L, fs)

@@ -1,4 +1,4 @@
-import dgt as mydgt
+import mydgt
 import scipy.io.wavfile as wio
 import numpy as np
 import matplotlib.pyplot as plt
@@ -53,12 +53,5 @@ for m in range(M):
             continue
         new_X[int(m_new), int(n_new)] += X[m, n]
 
-
-# 合成した上で逆変換
-#idgt = mydgt.IDGT(len(w), a, b, L)
-#cx = idgt.idgt(X, w)
-
-# 逆変換結果をwavファイルに出力
-#wio.write("exp2.wav", fs, np.real(cx) * pow(10, -4))
-
+# スパース化後のスペクトログラムを描画
 mydgt.plot(x, new_X, None, dw, a, b, N, L, fs)
