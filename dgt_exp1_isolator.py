@@ -48,6 +48,6 @@ idgt = mydgt.IDGT(len(w), a, b, L)
 cx = idgt.idgt(X_mixed, w)
 
 # 逆変換結果をwavファイルに出力
-wio.write("isolated_wave2.wav", fs, np.real(cx) * pow(10, -4))
+wio.write("isolated_wave.wav", fs, np.real(cx) * pow(10, -4))
 
 mydgt.plot(x_mixed, X_mixed, cx, w, a, b, N, L, fs)
