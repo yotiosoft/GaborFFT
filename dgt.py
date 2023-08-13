@@ -143,13 +143,11 @@ class IDGT:
     def do_IDGT(self, X, g, w, l):
         idgt_x = 0
         #print("l:" + str(l) + ", g[l][l]:" + str(g[l][l]))
-        nw = self.slide_window(w, 0)
-        nwg = nw * g
         for n in range(self.N):
             if l - self.a * n < 0 or l - self.a * n >= self.T:
                 continue
             for m in range(self.M):
-                idgt_x += X[m, n] * nwg[(l - self.a * n) % self.L] * np.exp((2 * np.pi * 1j * m * l) / complex(self.M))
+                idgt_x += X[m, n] * g[(l - self.a * n) % self.T] * np.exp((2 * np.pi * 1j * m * l) / complex(self.M))
         
         return idgt_x
 
@@ -160,9 +158,9 @@ class IDGT:
         return new_w
     
     def hammig_g(self, w):
-        cw_a = np.zeros(a, dtype=complex)
+        cw_a = np.zeros(self.L, dtype=complex)
         nw = self.slide_window(w, 0)
-        for l in range(a):
+        for l in range(self.T):
             sum = 0
             for n in range(self.N):
                 sum += np.abs(nw[(l + self.a * n) % self.L]) ** 2
@@ -172,9 +170,8 @@ class IDGT:
             print("l:" + str(l) + ", sum:" + str(sum))
         cw_a = 1 / cw_a
 
-        g = np.zeros(self.L, dtype=complex)
-        for l in range(self.L):
-            g[l] = cw_a[l % a]
+        g = np.zeros(self.T, dtype=complex)
+        g = cw_a[0:self.T] * w[0:self.T]
 
         plt.plot(cw_a)
         plt.show()
@@ -222,8 +219,8 @@ class IDGT:
 if __name__ == "__main__":
     w = hammig_w(500)
 
-    a = 150
-    b = 150
+    a = 50
+    b = 25
     start = 0
     end = sys.maxsize    # ファイル全体
     x, fs = load_wav("MSK.20100405.M.CS05.wav", start, end)
