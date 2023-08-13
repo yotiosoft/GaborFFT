@@ -9,6 +9,13 @@ import sys
 
 THREADS = 8
 
+"""
+for l in range(1000):
+    for m in range(1000):
+        el = np.exp((-2 * np.pi * 1j * ((m * l))) / complex(1000))
+        em = np.exp((-2 * np.pi * 1j * ((m * l) % 1000)) / complex(1000))
+        print("l:" + str(l) + ", m:" + str(m) + ", el:" + str(el) + ", em:" + str(em))
+"""
 def load_wav(path, start, end):
     fs, x = wio.read(path)
     print(x)
@@ -85,7 +92,7 @@ class DGT:
         for l in range(self.a * n, self.a * n + self.T):
             if l >= self.L:
                 break
-            dgt_X += x[l] * w[l - self.a * n] * np.exp((-2 * np.pi * 1j * m * l) / complex(self.M))
+            dgt_X += x[l] * w[l - self.a * n] * np.exp((-2 * np.pi * 1j * ((m * l) % self.L)) / complex(self.M))
         return dgt_X
     
     def X_part(self, x, w, m0, m1, n0, n1):
@@ -147,7 +154,7 @@ class IDGT:
             if l - self.a * n < 0 or l - self.a * n >= self.T:
                 continue
             for m in range(self.M):
-                idgt_x += X[m, n] * g[(l - self.a * n) % self.T] * np.exp((2 * np.pi * 1j * m * l) / complex(self.M))
+                idgt_x += X[m, n] * g[(l - self.a * n) % self.T] * np.exp((2 * np.pi * 1j * ((m * l) % self.L)) / complex(self.M))
         
         return idgt_x
 
