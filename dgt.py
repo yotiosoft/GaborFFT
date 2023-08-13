@@ -159,23 +159,24 @@ class IDGT:
     
     def hammig_g(self, w):
         cw_a = np.zeros(self.L, dtype=complex)
+        nw = self.slide_window(w, 0)
         for l in range(self.T):
             sum = 0
-            nw = self.slide_window(w, l)
             for n in range(self.N):
                 sum += np.abs(nw[(l + self.a * n) % self.L]) ** 2
+                if nw[(l + self.a * n) % self.L] != 0:
+                    print("  l + a * n:" + str(l + self.a * n) + ", nw:" + str(nw[(l + self.a * n) % self.L]))
             cw_a[l] = self.M * sum
-            if cw_a[l] == 0:
-                cw_a[l] = 1
+            print("l:" + str(l) + ", sum:" + str(sum))
         cw_a = 1 / cw_a
 
         g = np.zeros(self.T, dtype=complex)
         g = cw_a[0:self.T] * w[0:self.T]
 
-        #plt.plot(cw_a)
-        #plt.show()
-        #plt.plot(g)
-        #plt.show()
+        plt.plot(cw_a)
+        plt.show()
+        plt.plot(g)
+        plt.show()
 
         return g
     
@@ -224,7 +225,7 @@ if __name__ == "__main__":
     end = sys.maxsize    # ファイル全体
     x, fs = load_wav("MSK.20100405.M.CS05.wav", start, end)
     # x を a, b で割り切れる数まで0埋め
-    x = np.append(x, np.zeros(b - (len(x) % b)))
+    x = np.append(x, np.zeros(a - (len(x) % a)))
     print("len(x):" + str(len(x)))
     L = len(x)
     N = int(L / a)
@@ -243,7 +244,7 @@ if __name__ == "__main__":
     wio.write("output.wav", fs, np.real(cx) * pow(10, -4))
 
     # matplotlib でスペクトログラムを描画（比較用）
-    plt.specgram(np.real(cx), Fs = fs)
+    plt.specgram(np.real(x), Fs = fs)
 
     for l in range(L):
         print("l:" + str(l) + ", x[l]:" + str(x[l]) + ", cx[l]:" + str(cx[l]))
